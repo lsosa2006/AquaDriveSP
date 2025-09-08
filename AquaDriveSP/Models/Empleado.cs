@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
 namespace AquaDriveSP.Models
 {
+    [Table("empleado", Schema = "AquaDriveSP")]
     public class Empleado
     {
         public long EmpleadoId { get; set; }

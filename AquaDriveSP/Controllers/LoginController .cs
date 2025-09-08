@@ -11,22 +11,35 @@ using System.Web.Mvc;
 
 namespace AquaDriveSP.Controllers
 {
-    public class AccountController : Controller
+    public class LoginController : Controller
     {
+        // GET: /Home/Login
+        public ActionResult IniciarSesion()
+        {
+            return View();
+        }
+        public ActionResult Registro()
+        {
+            return View();
+        }
+        public ActionResult RecuperarContrasena()
+        {
+            return View();
+        }
         private readonly AppDbContext _db = new AppDbContext();
 
         // ---------------------------
         // Registro
         // ---------------------------
         [HttpPost]
-        public ActionResult CrearUsuario(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
+        public ActionResult Registro(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
         {
-            if (_db.Usuarios.Any(u => u.Email == correo))
+            if (_db.usuario.Any(u => u.email == correo))
             {
                 return Json(new { exito = false, mensaje = "El correo ya está registrado." });
             }
 
-            if (_db.Usuarios.Any(u => u.UsuarioId == usuarioId))
+            if (_db.usuario.Any(u => u.usuarioid == usuarioId))
             {
                 return Json(new { exito = false, mensaje = "El numero de documento ya está registrado." });
             }
@@ -34,41 +47,41 @@ namespace AquaDriveSP.Controllers
             // Crear usuario base
             var usuario = new Usuario
             {
-                UsuarioId = usuarioId,
-                Nombre = nombre,
-                Apellido = apellido,
-                Email = correo,
-                Telefono = telefono,
-                Contrasena = contrasena,
-                FechaCreacion = DateTime.Now
+                usuarioid = usuarioId,
+                nombre = nombre,
+                apellido = apellido,
+                email = correo,
+                telefono = telefono,
+                contrasena = contrasena,
+                fechacreacion = DateTime.Now
             };
 
-            _db.Usuarios.Add(usuario);
+            _db.usuario.Add(usuario);
             _db.SaveChanges();
 
             // Crear tipo de cuenta según selección
             switch (tipoCuenta.ToLower())
             {
                 case "cliente":
-                    _db.Clientes.Add(new Cliente
+                    _db.cliente.Add(new Cliente
                     {
-                        UsuarioId = usuario.UsuarioId
+                        usuarioid = usuario.usuarioid
                     });
                     break;
 
                 case "empleado":
-                    _db.Empleados.Add(new Empleado
+                    _db.empleado.Add(new Empleado
                     {
-                        UsuarioId = usuario.UsuarioId,
+                        UsuarioId = usuario.usuarioid,
                         SedeId = 1, // temporal, se puede actualizar
                         Estado = "Pendiente" // requiere aprobación de admin
                     });
                     break;
 
                 case "admin":
-                    _db.Administradores.Add(new Administrador
+                    _db.administrador.Add(new Administrador
                     {
-                        UsuarioId = usuario.UsuarioId,
+                        UsuarioId = usuario.usuarioid,
                         Estado = "Pendiente" // requiere aprobación de otro admin
                     });
                     break;
@@ -85,52 +98,74 @@ namespace AquaDriveSP.Controllers
         // Inicio de sesión
         // ---------------------------
         [HttpPost]
-        public ActionResult IniciarSesion(long usuarioId, string contrasena, string tipoCuenta)
+        public ActionResult IniciarSesion(long usuarioId, string contrasena)
         {
+            // Paso 1: Buscar el usuario
+            var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId && u.contrasena == contrasena);
 
-            switch (tipoCuenta.ToLower())
+            if (usuario == null)
             {
-                case "cliente":
-                    var cliente = _db.Clientes.FirstOrDefault(c => c.Usuario.UsuarioId == usuarioId && c.Usuario.Contrasena == contrasena);
-                    if (cliente != null) return Json(new { exito = true, mensaje = "Inicio de sesión exitoso", id = cliente.ClienteId });
-                    break;
-
-                case "empleado":
-                    var empleado = _db.Empleados.FirstOrDefault(e => e.Usuario.UsuarioId == usuarioId && e.Usuario.Contrasena == contrasena);
-                    if (empleado != null)
-                    {
-                        if (empleado.Estado != "Aceptado")
-                            return Json(new { exito = false, mensaje = "Empleado aún no aprobado por un administrador." });
-                        return Json(new { exito = true, mensaje = "Inicio de sesión exitoso", id = empleado.EmpleadoId });
-                    }
-                    break;
-
-                case "admin":
-                    var admin = _db.Administradores.FirstOrDefault(a => a.Usuario.UsuarioId == usuarioId && a.Usuario.Contrasena == contrasena);
-                    if (admin != null)
-                    {
-                        if (admin.Estado != "Aceptado")
-                            return Json(new { exito = false, mensaje = "Administrador aún no aprobado por otro admin." });
-                        return Json(new { exito = true, mensaje = "Inicio de sesión exitoso", id = admin.AdministradorId });
-                    }
-                    break;
+                return Json(new { exito = false, mensaje = "Credenciales inválidas." });
             }
 
-            return Json(new { exito = false, mensaje = "Credenciales inválidas." });
-        }
+            // Paso 2: Validar si es cliente
+            var cliente = _db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
+            if (cliente != null)
+            {
+                return Json(new
+                {
+                    exito = true,
+                    mensaje = "Inicio de sesión exitoso (Cliente)",
+                    tipoCuenta = "cliente",
+                    id = cliente.clienteid
+                });
+            }
 
-        // ---------------------------
-        // Recuperación de contraseña
-        // ---------------------------
+            // Paso 3: Validar si es empleado
+            var empleado = _db.empleado.FirstOrDefault(e => e.UsuarioId == usuario.usuarioid);
+            if (empleado != null)
+            {
+                if (empleado.Estado != "Aceptado")
+                    return Json(new { exito = false, mensaje = "Empleado aún no aprobado por un administrador." });
+
+                return Json(new
+                {
+                    exito = true,
+                    mensaje = "Inicio de sesión exitoso (Empleado)",
+                    tipoCuenta = "empleado",
+                    id = empleado.EmpleadoId
+                });
+            }
+
+            // Paso 4: Validar si es administrador
+            var admin = _db.administrador.FirstOrDefault(a => a.UsuarioId == usuario.usuarioid);
+            if (admin != null)
+            {
+                if (admin.Estado != "Aceptado")
+                    return Json(new { exito = false, mensaje = "Administrador aún no aprobado por otro admin." });
+
+                return Json(new
+                {
+                    exito = true,
+                    mensaje = "Inicio de sesión exitoso (Admin)",
+                    tipoCuenta = "admin",
+                    id = admin.AdministradorId
+                });
+            }
+            return Json(new { exito = false, mensaje = "El usuario no tiene un rol asignado." });
+        }
+            // ---------------------------
+            // Recuperación de contraseña
+            // ---------------------------
         [HttpPost]
         public ActionResult RecuperarContrasena(long usuarioId, string correo)
         {
-            var usuario = _db.Usuarios.FirstOrDefault(u => u.Email == correo && u.UsuarioId == usuarioId);
+            var usuario = _db.usuario.FirstOrDefault(u => u.email == correo && u.usuarioid == usuarioId);
             if (usuario == null)
                 return Json(new { exito = false, mensaje = "Correo no registrado." });
 
             string nuevaContrasena = GenerarContrasenaAleatoria();
-            usuario.Contrasena = nuevaContrasena;
+            usuario.contrasena = nuevaContrasena;
             _db.SaveChanges();
 
             try

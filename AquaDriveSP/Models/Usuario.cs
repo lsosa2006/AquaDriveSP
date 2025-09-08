@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
 namespace AquaDriveSP.Models
 {
+    [Table("usuario", Schema = "AquaDriveSP")]
     public class Usuario
     {
-        public long UsuarioId { get; set; }
-        public string Nombre { get; set; }
-        public string Apellido { get; set; }
-        public string Email { get; set; }
-        public string Telefono { get; set; }
-        public string Contrasena { get; set; }
-        public DateTime FechaCreacion { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public long usuarioid { get; set; }
+        public string nombre { get; set; }
+        public string apellido { get; set; }
+        public string email { get; set; }
+        public string telefono { get; set; }
+        public string contrasena { get; set; }
+        public DateTime fechacreacion { get; set; }
 
         public virtual Cliente Cliente { get; set; }
         public virtual Empleado Empleado { get; set; }
