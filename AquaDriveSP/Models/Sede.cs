@@ -1,26 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace AquaDriveSP.Models
 {
     [Table("sede", Schema = "AquaDriveSP")]
     public class Sede
     {
-        public long SedeId { get; set; }
-        public string Nombre { get; set; }
-        public string Direccion { get; set; }
-        public string Telefono { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long sedeid { get; set; }
 
-        public virtual ICollection<Empleado> Empleados { get; set; }
-        public virtual ICollection<Cita> Citas { get; set; }
+        public string nombre { get; set; }
+        public string direccion { get; set; }
+        public string telefono { get; set; }
+
+        public virtual ICollection<Empleado> empleados { get; set; }
+        public virtual ICollection<Cita> citas { get; set; }
 
         public Sede()
         {
-            Empleados = new HashSet<Empleado>();
-            Citas = new HashSet<Cita>();
+            empleados = new HashSet<Empleado>();
+            citas = new HashSet<Cita>();
         }
     }
 }

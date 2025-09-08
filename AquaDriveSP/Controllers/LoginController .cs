@@ -1,32 +1,33 @@
 ﻿using AquaDriveSP.Models;
 using System;
-using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web;
 using System.Web.Mvc;
 
 namespace AquaDriveSP.Controllers
 {
     public class LoginController : Controller
     {
-        // GET: /Home/Login
+        private readonly AppDbContext _db = new AppDbContext();
+
+        // GET: /Login/IniciarSesion
         public ActionResult IniciarSesion()
         {
             return View();
         }
+
+        // GET: /Login/Registro
         public ActionResult Registro()
         {
             return View();
         }
+
+        // GET: /Login/RecuperarContrasena
         public ActionResult RecuperarContrasena()
         {
             return View();
         }
-        private readonly AppDbContext _db = new AppDbContext();
 
         // ---------------------------
         // Registro
@@ -34,64 +35,65 @@ namespace AquaDriveSP.Controllers
         [HttpPost]
         public ActionResult Registro(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
         {
-            if (_db.usuario.Any(u => u.email == correo))
+            try
             {
-                return Json(new { exito = false, mensaje = "El correo ya está registrado." });
+                // Validaciones
+                if (_db.usuario.Any(u => u.email == correo))
+                    return Json(new { exito = false, mensaje = "El correo ya está registrado." });
+
+                if (_db.usuario.Any(u => u.usuarioid == usuarioId))
+                    return Json(new { exito = false, mensaje = "El número de documento ya está registrado." });
+
+                // Crear usuario base
+                var usuario = new Usuario
+                {
+                    usuarioid = usuarioId,
+                    nombre = nombre,
+                    apellido = apellido,
+                    email = correo,
+                    telefono = telefono,
+                    contrasena = contrasena,
+                    fechacreacion = DateTime.Now
+                };
+
+                _db.usuario.Add(usuario);
+                _db.SaveChanges();
+
+                // Crear tipo de cuenta según selección
+                switch (tipoCuenta.ToLower())
+                {
+                    case "cliente":
+                        _db.cliente.Add(new Cliente { usuarioid = usuario.usuarioid });
+                        break;
+
+                    case "empleado":
+                        _db.empleado.Add(new Empleado
+                        {
+                            usuarioid = usuario.usuarioid,
+                            sedeid = 1, // temporal, se puede actualizar
+                            estado = "Pendiente"
+                        });
+                        break;
+
+                    case "admin":
+                        _db.administrador.Add(new Administrador
+                        {
+                            usuarioid = usuario.usuarioid,
+                            estado = "Pendiente"
+                        });
+                        break;
+
+                    default:
+                        return Json(new { exito = false, mensaje = "Tipo de cuenta inválido." });
+                }
+
+                _db.SaveChanges();
+                return Json(new { exito = true, mensaje = "Usuario registrado correctamente. Espera aprobación si es empleado o admin." });
             }
-
-            if (_db.usuario.Any(u => u.usuarioid == usuarioId))
+            catch (Exception ex)
             {
-                return Json(new { exito = false, mensaje = "El numero de documento ya está registrado." });
+                return Json(new { exito = false, mensaje = $"Error al registrar usuario: {ex.Message}" });
             }
-
-            // Crear usuario base
-            var usuario = new Usuario
-            {
-                usuarioid = usuarioId,
-                nombre = nombre,
-                apellido = apellido,
-                email = correo,
-                telefono = telefono,
-                contrasena = contrasena,
-                fechacreacion = DateTime.Now
-            };
-
-            _db.usuario.Add(usuario);
-            _db.SaveChanges();
-
-            // Crear tipo de cuenta según selección
-            switch (tipoCuenta.ToLower())
-            {
-                case "cliente":
-                    _db.cliente.Add(new Cliente
-                    {
-                        usuarioid = usuario.usuarioid
-                    });
-                    break;
-
-                case "empleado":
-                    _db.empleado.Add(new Empleado
-                    {
-                        UsuarioId = usuario.usuarioid,
-                        SedeId = 1, // temporal, se puede actualizar
-                        Estado = "Pendiente" // requiere aprobación de admin
-                    });
-                    break;
-
-                case "admin":
-                    _db.administrador.Add(new Administrador
-                    {
-                        UsuarioId = usuario.usuarioid,
-                        Estado = "Pendiente" // requiere aprobación de otro admin
-                    });
-                    break;
-
-                default:
-                    return Json(new { exito = false, mensaje = "Tipo de cuenta inválido." });
-            }
-
-            _db.SaveChanges();
-            return Json(new { exito = true, mensaje = "Usuario registrado correctamente. Espera aprobación si es empleado o admin." });
         }
 
         // ---------------------------
@@ -100,63 +102,68 @@ namespace AquaDriveSP.Controllers
         [HttpPost]
         public ActionResult IniciarSesion(long usuarioId, string contrasena)
         {
-            // Paso 1: Buscar el usuario
-            var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId && u.contrasena == contrasena);
-
-            if (usuario == null)
+            try
             {
-                return Json(new { exito = false, mensaje = "Credenciales inválidas." });
-            }
+                var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId && u.contrasena == contrasena);
+                if (usuario == null)
+                    return Json(new { exito = false, mensaje = "Credenciales inválidas." });
 
-            // Paso 2: Validar si es cliente
-            var cliente = _db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
-            if (cliente != null)
-            {
-                return Json(new
+                // Cliente
+                var cliente = _db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
+                if (cliente != null)
                 {
-                    exito = true,
-                    mensaje = "Inicio de sesión exitoso (Cliente)",
-                    tipoCuenta = "cliente",
-                    id = cliente.clienteid
-                });
-            }
+                    return Json(new
+                    {
+                        exito = true,
+                        mensaje = "Inicio de sesión exitoso (Cliente)",
+                        tipoCuenta = "cliente",
+                        id = cliente.clienteid
+                    });
+                }
 
-            // Paso 3: Validar si es empleado
-            var empleado = _db.empleado.FirstOrDefault(e => e.UsuarioId == usuario.usuarioid);
-            if (empleado != null)
-            {
-                if (empleado.Estado != "Aceptado")
-                    return Json(new { exito = false, mensaje = "Empleado aún no aprobado por un administrador." });
-
-                return Json(new
+                // Empleado
+                var empleado = _db.empleado.FirstOrDefault(e => e.usuarioid == usuario.usuarioid);
+                if (empleado != null)
                 {
-                    exito = true,
-                    mensaje = "Inicio de sesión exitoso (Empleado)",
-                    tipoCuenta = "empleado",
-                    id = empleado.EmpleadoId
-                });
-            }
+                    if (empleado.estado != "Aceptado")
+                        return Json(new { exito = false, mensaje = "Empleado aún no aprobado por un administrador." });
 
-            // Paso 4: Validar si es administrador
-            var admin = _db.administrador.FirstOrDefault(a => a.UsuarioId == usuario.usuarioid);
-            if (admin != null)
-            {
-                if (admin.Estado != "Aceptado")
-                    return Json(new { exito = false, mensaje = "Administrador aún no aprobado por otro admin." });
+                    return Json(new
+                    {
+                        exito = true,
+                        mensaje = "Inicio de sesión exitoso (Empleado)",
+                        tipoCuenta = "empleado",
+                        id = empleado.empleadoid
+                    });
+                }
 
-                return Json(new
+                // Administrador
+                var admin = _db.administrador.FirstOrDefault(a => a.usuarioid == usuario.usuarioid);
+                if (admin != null)
                 {
-                    exito = true,
-                    mensaje = "Inicio de sesión exitoso (Admin)",
-                    tipoCuenta = "admin",
-                    id = admin.AdministradorId
-                });
+                    if (admin.estado != "Aceptado")
+                        return Json(new { exito = false, mensaje = "Administrador aún no aprobado por otro admin." });
+
+                    return Json(new
+                    {
+                        exito = true,
+                        mensaje = "Inicio de sesión exitoso (Admin)",
+                        tipoCuenta = "admin",
+                        id = admin.administradorid
+                    });
+                }
+
+                return Json(new { exito = false, mensaje = "El usuario no tiene un rol asignado." });
             }
-            return Json(new { exito = false, mensaje = "El usuario no tiene un rol asignado." });
+            catch (Exception ex)
+            {
+                return Json(new { exito = false, mensaje = $"Error al iniciar sesión: {ex.Message}" });
+            }
         }
-            // ---------------------------
-            // Recuperación de contraseña
-            // ---------------------------
+
+        // ---------------------------
+        // Recuperación de contraseña
+        // ---------------------------
         [HttpPost]
         public ActionResult RecuperarContrasena(long usuarioId, string correo)
         {
@@ -170,27 +177,34 @@ namespace AquaDriveSP.Controllers
 
             try
             {
-                // Enviar email (requiere configuración SMTP)
-                using (var smtp = new SmtpClient())
+                using (var smtp = new SmtpClient("smtp.gmail.com", 587))
                 {
+                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    smtp.UseDefaultCredentials = false;
+                    smtp.Credentials = new NetworkCredential("miguelnal0706@gmail.com", "viwscmvvvliwmrib");
+                    smtp.EnableSsl = true;
+
                     var mail = new MailMessage();
+                    mail.From = new MailAddress("miguelnal0706@gmail.com", "AquaDriveSP");
                     mail.To.Add(correo);
                     mail.Subject = "Recuperación de contraseña AquaDriveSP";
                     mail.Body = $"Tu nueva contraseña es: {nuevaContrasena}";
+                    mail.IsBodyHtml = false;
+
                     smtp.Send(mail);
                 }
+
                 return Json(new { exito = true, mensaje = "Nueva contraseña enviada al correo." });
             }
-            catch
+            catch (Exception ex)
             {
-                return Json(new { exito = false, mensaje = "Error al enviar el correo." });
+                return Json(new { exito = false, mensaje = "Error al enviar el correo: " + ex.Message });
             }
         }
 
         // ---------------------------
-        // Funciones auxiliares
+        // Función auxiliar
         // ---------------------------
-        
         private string GenerarContrasenaAleatoria(int longitud = 8)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
