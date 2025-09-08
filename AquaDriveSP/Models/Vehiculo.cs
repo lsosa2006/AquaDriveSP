@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
 
 namespace AquaDriveSP.Models
 {
@@ -11,13 +7,14 @@ namespace AquaDriveSP.Models
     public class Vehiculo
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Placa no es autoincremental
-        public string Placa { get; set; }
-        public long ClienteId { get; set; }
-        public string Marca { get; set; }
-        public string Modelo { get; set; }
-        public string Color { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public string placa { get; set; }
 
-        public virtual Cliente Cliente { get; set; }
+        public long clienteid { get; set; }
+        public string marca { get; set; }
+        public string modelo { get; set; }
+        public string color { get; set; }
+
+        public virtual Cliente cliente { get; set; }
     }
 }

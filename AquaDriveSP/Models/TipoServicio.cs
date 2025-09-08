@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace AquaDriveSP.Models
 {
     [Table("tiposervicio", Schema = "AquaDriveSP")]
     public class TipoServicio
     {
-        public long TipoServicioId { get; set; }
-        public string Nombre { get; set; }
-        public int DuracionMinutos { get; set; }
-        public decimal Precio { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long tiposervicioid { get; set; }
 
-        public virtual ICollection<Cita> Citas { get; set; }
+        public string nombre { get; set; }
+        public int duracionminutos { get; set; }
+        public decimal precio { get; set; }
+
+        public virtual ICollection<Cita> citas { get; set; }
 
         public TipoServicio()
         {
-            Citas = new HashSet<Cita>();
+            citas = new HashSet<Cita>();
         }
     }
 }
