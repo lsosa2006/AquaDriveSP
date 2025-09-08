@@ -10,16 +10,16 @@ namespace AquaDriveSP.Models
     {
         public AppDbContext() : base("name=PostgresConnection") { }
 
-        public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<Cliente> Clientes { get; set; }
-        public DbSet<Sede> Sedes { get; set; }
-        public DbSet<Empleado> Empleados { get; set; }
-        public DbSet<Administrador> Administradores { get; set; }
-        public DbSet<TipoServicio> TiposServicio { get; set; }
-        public DbSet<Vehiculo> Vehiculos { get; set; }
-        public DbSet<Horario> Horarios { get; set; }
-        public DbSet<Cita> Citas { get; set; }
-        public DbSet<Resena> Resenas { get; set; }
+        public DbSet<Usuario> usuario { get; set; }
+        public DbSet<Cliente> cliente { get; set; }
+        public DbSet<Sede> sede { get; set; }
+        public DbSet<Empleado> empleado { get; set; }
+        public DbSet<Administrador> administrador { get; set; }
+        public DbSet<TipoServicio> tiposervicio { get; set; }
+        public DbSet<Vehiculo> vehiculo { get; set; }
+        public DbSet<Horario> horario { get; set; }
+        public DbSet<Cita> cita { get; set; }
+        public DbSet<Resena> resena { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

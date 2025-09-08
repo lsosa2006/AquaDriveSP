@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "Registrarse";
+    Layout = null; <!-- No usa el layout principal -->
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="~/ScriptsViews/Registro.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8" />
+    <title>AQUADRIVE SP - Registro</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('@Url.Content("~/images/AQUADRIVE SP.png")') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .registro-box {
+            background-color: #0a2ca3;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .registro-box h2 {
+            margin-bottom: 30px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .registro-box input {
+            width: 80%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .registro-box .tipo-cuenta {
+            margin: 15px 0;
+            text-align: center; /* centra el título */
+        }
+
+        .registro-box .tipo-cuenta label {
+            margin: 0 15px; /* espacio entre los radios */
+            font-weight: normal;
+        }
+
+        .radio-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px; /* espacio entre Cliente y Empleado */
+            margin-top: 10px;
+        }
+
+        .radio-options label {
+            display: flex;
+            align-items: center; /* alinea texto con el radio */
+            gap: 5px; /* espacio pequeño entre el botón y el texto */
+            font-weight: normal;
+        }
+
+        .registro-box label {
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 80%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-register {
+            background: #00c3ff;
+            color: white;
+        }
+
+        .btn-register:hover {
+            background: #00a2d4;
+        }
+
+        .login-link {
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #00cfff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="registro-box">
+        <h2>AQUADRIVE SP</h2>
+        <form method="post" action="@Url.Action("Registro","Login")">
+            <input type="text" id="usuarioId" name="usuarioId" required placeholder="Documento" />
+            <input type="text" id="nombre" name="nombre" required placeholder="Nombre" />
+            <input type="text" id="apellido" name="apellido" required placeholder="Apellido" />
+            <input type="email" id="correo" name="correo" required placeholder="Correo electrónico" />
+            <input type="text" id="telefono" name="telefono" required placeholder="Teléfono" />
+            <input type="password" id="contrasena" name="contrasena" required placeholder="Contraseña" />
+
+            <div class="tipo-cuenta">
+                <span>Tipo de cuenta</span>
+                <div class="radio-options">
+                    <label for="cliente">
+                        <input type="radio" id="cliente" name="tipoCuenta" value="cliente" required />
+                        Cliente
+                    </label>
+
+                    <label for="empleado">
+                        <input type="radio" id="empleado" name="tipoCuenta" value="empleado" required />
+                        Empleado
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-register">Registrarse</button>
+        </form>
+
+        <div class="login-link">
+            <a href="@Url.Action("IniciarSesion","Login")">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
+    </div>
+</body>
+</html>

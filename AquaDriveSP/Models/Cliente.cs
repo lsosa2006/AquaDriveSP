@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
 namespace AquaDriveSP.Models
 {
+    [Table("cliente", Schema = "AquaDriveSP")]
     public class Cliente
     {
-        public long ClienteId { get; set; }
-        public long UsuarioId { get; set; }
+        public long clienteid { get; set; }
+        public long usuarioid { get; set; }
 
         public virtual Usuario Usuario { get; set; }
         public virtual ICollection<Vehiculo> Vehiculos { get; set; }
