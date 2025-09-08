@@ -19,7 +19,7 @@ namespace AquaDriveSP.Controllers
         // Registro
         // ---------------------------
         [HttpPost]
-        public ActionResult ResgistrarUsuario(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
+        public ActionResult CrearUsuario(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
         {
             if (_db.Usuarios.Any(u => u.Email == correo))
             {
