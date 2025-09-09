@@ -20,8 +20,8 @@ public class Usuario
     public DateTime fechacreacion { get; set; }
 
     public virtual ICollection<Cliente> clientes { get; set; }
-    public virtual Empleado empleado { get; set; } // 1:1
-    public virtual Administrador administrador { get; set; } // 1:1
+    public virtual ICollection<Empleado> empleados { get; set; } // 1:1
+    public virtual ICollection<Administrador> administradores { get; set; } // 1:1
 }
 }
 

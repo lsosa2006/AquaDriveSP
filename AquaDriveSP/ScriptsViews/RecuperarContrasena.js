@@ -9,11 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const correo = document.getElementById("correo").value.trim();
 
             if (!usuarioId || isNaN(usuarioId)) {
-                Swal.fire("Error", "El documento debe ser un número válido.", "error");
+                Swal.fire("Error", "El documento debe ser un número valido.", "error");
                 return;
             }
             if (!correo) {
-                Swal.fire("Error", "Ingresa un correo válido.", "error");
+                Swal.fire("Error", "Ingresa un correo valido.", "error");
                 return;
             }
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     Swal.fire({
                         icon: "error",
                         title: "Error",
-                        text: "Ocurrió un problema con el servidor.",
+                        text: "Ocurrio un problema con el servidor.",
                         confirmButtonColor: "#d33"
                     });
                 });

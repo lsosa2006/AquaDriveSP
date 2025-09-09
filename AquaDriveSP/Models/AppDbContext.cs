@@ -32,12 +32,14 @@ namespace AquaDriveSP.Models
 
             modelBuilder.Entity<Empleado>()
                 .HasRequired(e => e.usuario)
-                .WithOptional(u => u.empleado)
+                .WithMany(u => u.empleados)
+                .HasForeignKey(e => e.usuarioid)
                 .WillCascadeOnDelete(true);
 
             modelBuilder.Entity<Administrador>()
                 .HasRequired(a => a.usuario)
-                .WithOptional(u => u.administrador)
+                .WithMany(u => u.administradores)
+                .HasForeignKey(a => a.usuarioid)
                 .WillCascadeOnDelete(true);
 
             // --------------------
