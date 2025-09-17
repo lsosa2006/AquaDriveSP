@@ -34,6 +34,10 @@
             justify-content: center; /* centra vertical */
             align-items: center; /* centra horizontal */
             text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
             .login-box h2 {
@@ -102,11 +106,11 @@
 </head>
 <body>
     <div class="login-box">
-        <h2>AQUADRIVE SP</h2>
+        <img src="~/images/AquaDriveSP_logo.png" alt="AquaDriveSP" style="max-width:180px; height:auto; margin-bottom:20px;" />
         <form method="post" action="/Login/IniciarSesion">
-            <input type="text" id="documento" name="documento" required placeholder="Documento"/>
+            <input type="number" id="documento" name="documento" required placeholder="Documento" />
 
-            <input type="password" id="contrasena" name="contrasena" required placeholder="Contraseña"/>
+            <input type="password" id="contrasena" name="contrasena" required placeholder="Contraseña" />
 
             <button type="submit" class="btn btn-login">Iniciar sesión</button>
             <button type="button" onclick="location.href='/Login/Registro'" class="btn btn-register">Registrarse</button>

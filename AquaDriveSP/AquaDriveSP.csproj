@@ -166,6 +166,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Autentication\AuthorizeRoleAttribute.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\CuentaController.cs" />
     <Compile Include="Controllers\LoginController .cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -205,6 +208,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="images\AQUADRIVE SP.png" />
+    <Content Include="images\AquaDriveSP_logo.png" />
     <Content Include="ScriptsViews\IniciarSesion.js" />
     <Content Include="ScriptsViews\RecuperarContrasena.js" />
     <Content Include="ScriptsViews\Registro.js" />
@@ -236,12 +240,13 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Login\IniciarSesion.cshtml" />
     <Content Include="Views\Login\Registro.cshtml" />
     <Content Include="Views\Login\RecuperarContrasena.cshtml" />
+    <Content Include="Views\Home\Dashboard.cshtml" />
+    <Content Include="Views\Admin\GestionarAdministrador.cshtml" />
+    <Content Include="Views\Admin\GestionarEmpleado.cshtml" />
+    <Content Include="Views\Admin\Estadisticas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,115 @@
+﻿@{
+    var rol = Session["Rol"] != null ? Session["Rol"].ToString() : "Invitado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = $"Inicio {rol}";
+}
+
+@section Styles {
+    <style>
+        .container {
+            display: flex;
+            justify-content: center; /* Centra las tarjetas horizontalmente */
+            align-items: flex-start;
+            gap: 30px; /* Separación entre tarjetas */
+            margin: 20px 40px 40px 40px;
+            flex-wrap: nowrap; /* Forzar que estén en una fila */
+            max-width: 1000px; /* Limita el ancho total del contenedor */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card-left {
+            width: 35%; /* Tarjeta izquierda más estrecha */
+            min-width: 250px;
+        }
+
+        .card-right {
+            width: 60%; /* Tarjeta derecha más ancha */
+            min-width: 300px;
+        }
+
+        .card {
+            background: #e6f7ff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+            font-size: 1.1rem;
+        }
+
+            .card h3 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+        .stars {
+            color: gold;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+}
+
+<div class="container">
+
+    @if (ViewBag.Rol == "Admin")
+    {
+        <div class="card card-left">
+            <h3>Top Empleados</h3>
+            <ul>
+                @foreach (var e in ViewBag.TopEmpleados)
+                {
+                    <li>@e</li>
+                }
+            </ul>
+
+            <h3>Sedes</h3>
+            <ul>
+                @foreach (var s in ViewBag.Sedes)
+                {
+                    <li>@s.Key: @s.Value Lavados</li>
+                }
+            </ul>
+        </div>
+
+        <div class="card card-right">
+            <h3>Estadísticas</h3>
+            <ul>
+                <li>Autos lavados hoy: </li>
+                <li>Ingresos del día: $</li>
+            </ul>
+        </div>
+    }
+    else if (ViewBag.Rol == "Empleado")
+    {
+        <div class="card">
+            <h3>Mis tareas</h3>
+            <ul>
+                @foreach (var t in ViewBag.MisTareas)
+                {
+                    <li>@t</li>
+                }
+            </ul>
+            <p>Horas de trabajo: @ViewBag.HorasTrabajo</p>
+        </div>
+    }
+    else if (ViewBag.Rol == "Cliente")
+    {
+        <div class="card">
+            <h3>Mis Citas</h3>
+            <ul>
+                @foreach (var c in ViewBag.MisCitas)
+                {
+                    <li>@c</li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        console.log("Dashboard cargado");
+    </script>
+}
