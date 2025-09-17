@@ -1,0 +1,218 @@
+﻿@{
+    ViewBag.Title = "Gestionar Empleado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .admin-container {
+            width: 95%; /* ocupa casi todo el ancho de la pantalla */
+            max-width: 1800px; /* límite ancho en pantallas grandes */
+            margin: 40px auto; /* centra horizontalmente */
+            padding: 20px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+            text-align: center; /* centra título y botón */
+        }
+
+            .admin-container h2 {
+                text-align: center; /* título centrado */
+                margin-bottom: 20px;
+            }
+
+            .admin-container table {
+                width: 100%; /* tabla ocupa todo el ancho */
+                margin: 0 auto 20px auto; /* centrada dentro del container */
+                border-collapse: collapse;
+                table-layout: auto; /* columnas se adaptan al contenido */
+            }
+
+            .admin-container table,
+            .admin-container th,
+            .admin-container td {
+                border: 1px solid black;
+            }
+
+            /* Columna sede más ancha */
+            .admin-container th:nth-child(7),
+            .admin-container td:nth-child(7) {
+             min-width: 180px; /* ajusta según lo necesites */
+             }
+
+            .admin-container th,
+            .admin-container td {
+                padding: 10px;
+                text-align: center;
+                word-wrap: break-word;
+            }
+
+            .admin-container .btn-success {
+                display: block;
+                margin: 20px auto 0 auto; /* centra el botón */
+            }
+
+        .btn-blue {
+            background-color: #00cfff;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Contenedor de botones en acciones */
+        .action-buttons {
+            display: inline-flex;
+            gap: 6px; /* Espacio entre botones */
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+            .switch input {
+                display: none;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: #00cfff;
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
+    </style>
+}
+
+<div class="admin-container">
+    <h2>Gestionar Empleado</h2>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Documento</th>
+                    <th style="width: 10%;">Nombre</th>
+                    <th style="width: 10%;">Apellido</th>
+                    <th style="width: 15%;">Email</th>
+                    <th style="width: 10%;">Teléfono</th>
+                    <th style="width: 10%;">Contraseña</th>
+                    <th style="width: 15%;">Sede</th>
+                    <th style="width: 10%;">Fecha contratación</th>
+                    <th style="width: 10%;">Estado</th>
+                    <th style="width: 10%;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1013339221</td>
+                    <td>Juan</td>
+                    <td>Sosa</td>
+                    <td>juan.sosa@empresa.com</td>
+                    <td>3221233424</td>
+                    <td>Ng322VH4</td>
+                    <td>
+                        @Html.DropDownList("Sede", new SelectList(new[] { "Bogotá", "Medellín", "Cali" }), "Seleccionar", new { @class = "form-select" })
+                    </td>
+                    <td>
+                        <input type="date" class="form-control" />
+                    </td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <!-- Botón Horario -->
+                            <button class="btn-blue btn-sm" data-bs-toggle="modal" data-bs-target="#modalHorario" title="Asignar horario">
+                                <i class="bi bi-clock"></i>
+                            </button>
+                            <!-- Botón Eliminar -->
+                            <button class="btn btn-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-success">Guardar</button>
+</div>
+
+<!-- Modal Asignar Horario -->
+<div class="modal fade" id="modalHorario" tabindex="-1" aria-labelledby="modalHorarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalHorarioLabel">Asignar Horario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th>Hora inicio</th>
+                            <th>Hora fin</th>
+                            <th>Activo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dia in new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" })
+                        {
+                            <tr>
+                                <td>@dia</td>
+                                <td><input type="time" class="form-control" /></td>
+                                <td><input type="time" class="form-control" /></td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+}

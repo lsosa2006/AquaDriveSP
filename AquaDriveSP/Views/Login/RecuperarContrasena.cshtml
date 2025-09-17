@@ -35,6 +35,10 @@
             align-items: center;
             text-align: center;
             color: white;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
             .forgot-box h2 {
@@ -92,9 +96,9 @@
 </head>
 <body>
     <div class="forgot-box">
-        <h2>AQUADRIVE SP</h2>
+        <img src="~/images/AquaDriveSP_logo.png" alt="AquaDriveSP" style="max-width:180px; height:auto; margin-bottom:20px;" />
         <form id="formRecuperar" method="post">
-            <input type="number" id="usuarioId" name="usuarioId" required placeholder="Número de documento" />
+            <input type="number" id="usuarioId" name="usuarioId" required placeholder="Documento" />
             <input type="email" id="correo" name="correo" required placeholder="Correo electrónico" />
 
             <button type="submit" class="btn btn-recover">Recuperar</button>

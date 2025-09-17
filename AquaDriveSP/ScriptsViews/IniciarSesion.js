@@ -19,18 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => {
                     if (data.exito) {
                         Swal.fire("Exito", data.mensaje, "success").then(() => {
-                            // Redirige según tipo de cuenta
-                            switch (data.tipoCuenta) {
-                                case "cliente":
-                                    window.location.href = "/Cliente/Dashboard";
-                                    break;
-                                case "empleado":
-                                    window.location.href = "/Empleado/Dashboard";
-                                    break;
-                                case "admin":
-                                    window.location.href = "/Admin/Dashboard";
-                                    break;
-                            }
+                            document.querySelector("#contrasena").value = "";
+                            window.location.href = "/Home/Dashboard";
                         });
                     } else {
                         Swal.fire("Error", data.mensaje, "error");
@@ -39,5 +29,4 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(err => console.error(err));
         });
     }
-
 });

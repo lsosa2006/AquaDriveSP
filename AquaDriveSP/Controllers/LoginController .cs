@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace AquaDriveSP.Controllers
 {
@@ -104,14 +105,30 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
-                var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId && u.contrasena == contrasena);
+                // 1. Buscar solo por el usuario (documento o correo)
+                var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId);
+
                 if (usuario == null)
-                    return Json(new { exito = false, mensaje = "Credenciales inválidas." });
+                {
+                    return Json(new { exito = false, mensaje = "El usuario no existe." });
+                }
+
+                // 2. Validar la contraseña
+                if (usuario.contrasena != contrasena)
+                {
+                    return Json(new { exito = false, mensaje = "La contraseña es incorrecta." });
+                }
+
+                string rol;
 
                 // Cliente
                 var cliente = _db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
                 if (cliente != null)
                 {
+                    rol = "Cliente";
+                    FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
+                    // Guardar rol en Session (opcional)
+                    Session["Rol"] = rol;
                     return Json(new
                     {
                         exito = true,
@@ -128,6 +145,10 @@ namespace AquaDriveSP.Controllers
                     if (empleado.estado != "Aceptado")
                         return Json(new { exito = false, mensaje = "Empleado aún no aprobado por un administrador." });
 
+                    rol = "Empleado";
+                    FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
+                    // Guardar rol en Session (opcional)
+                    Session["Rol"] = rol;
                     return Json(new
                     {
                         exito = true,
@@ -144,6 +165,10 @@ namespace AquaDriveSP.Controllers
                     if (admin.estado != "Aceptado")
                         return Json(new { exito = false, mensaje = "Administrador aún no aprobado por otro admin." });
 
+                    rol = "Admin";
+                    FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
+                    // Guardar rol en Session (opcional)
+                    Session["Rol"] = rol;
                     return Json(new
                     {
                         exito = true,
