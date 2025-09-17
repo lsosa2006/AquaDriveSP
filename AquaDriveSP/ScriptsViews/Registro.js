@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Validaciones
             if (!usuarioId || isNaN(usuarioId)) {
-                Swal.fire("Error", "El documento debe ser un número válido.", "error");
+                Swal.fire("Error", "El documento debe ser un numero valido.", "error");
                 return;
             }
             if (nombre.length < 2) {
@@ -30,16 +30,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!regexCorreo.test(correo)) {
-                Swal.fire("Error", "Ingresa un correo electrónico válido.", "error");
+                Swal.fire("Error", "Ingresa un correo electronico valido.", "error");
                 return;
             }
             const regexTelefono = /^[0-9]{7,15}$/;
             if (!regexTelefono.test(telefono)) {
-                Swal.fire("Error", "El teléfono debe contener solo números (7-15 dígitos).", "error");
+                Swal.fire("Error", "El telefono debe contener solo numeros (7-15 dígitos).", "error");
                 return;
             }
             if (contrasena.length < 4 || contrasena.lenght > 8) {
-                Swal.fire("Error", "La contraseña debe entre 4 y 8 caracteres.", "error");
+                Swal.fire("Error", "La contrasena debe entre 4 y 8 caracteres.", "error");
                 return;
             }
             if (!tipoCuenta) {
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .catch(err => {
                     console.error(err);
-                    Swal.fire("Error", "Ocurrió un problema al registrar el usuario.", "error");
+                    Swal.fire("Error", "Ocurrio un problema al registrar el usuario.", "error");
                 });
         });
     }
