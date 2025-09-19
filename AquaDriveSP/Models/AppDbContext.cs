@@ -67,7 +67,7 @@ namespace AquaDriveSP.Models
             modelBuilder.Entity<Cita>()
                 .HasRequired(c => c.tiposervicio)
                 .WithMany(t => t.citas)
-                .HasForeignKey(c => c.tipoServicioid);
+                .HasForeignKey(c => c.tiposervicioid);
 
             modelBuilder.Entity<Cita>()
                 .HasRequired(c => c.sede)

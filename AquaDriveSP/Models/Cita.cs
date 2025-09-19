@@ -14,7 +14,7 @@ namespace AquaDriveSP.Models
 
         public long clienteid { get; set; }
         public long? empleadoid { get; set; }
-        public long tipoServicioid { get; set; }
+        public long tiposervicioid { get; set; }
         public long sedeid { get; set; }
 
         public DateTime fechahorainicio { get; set; }

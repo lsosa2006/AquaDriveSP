@@ -4,13 +4,17 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Web.Services.Description;
 using AquaDriveSP.Autentication;
+using AquaDriveSP.Models;
 
 namespace AquaDriveSP.Controllers
 {
     [AuthorizeRole("Admin")]
     public class AdminController : Controller
     {
+        private readonly AppDbContext db = new AppDbContext();
+        #region Vistas
         public ActionResult GestionarAdministrador()
         {
             return View();
@@ -23,5 +27,329 @@ namespace AquaDriveSP.Controllers
         {
             return View();
         }
+        #endregion
+
+        #region Funciones
+        // Obtener empleados con usuario y sede
+        [HttpGet]
+        public JsonResult GetEmpleados()
+        {
+            try
+            {
+                // Traer los empleados con usuario y sede 
+                var empleadosDb = db.empleado
+                .Include("usuario")
+                .Include("sede")
+                .ToList();
+
+                // Mapear los datos a un objeto listo para JSON
+                var empleados = empleadosDb.Select(e => new
+                {
+                    e.empleadoid,
+                    e.usuarioid,
+                    e.sedeid,
+                    fechacontratacion = e.fechacontratacion.HasValue
+                        ? e.fechacontratacion.Value.ToString("yyyy-MM-dd") // formato válido para control HTL
+                        : null,
+                    e.estado,
+                    usuario = new
+                    {
+                        e.usuario.nombre,
+                        e.usuario.apellido,
+                        e.usuario.email,
+                        e.usuario.telefono,
+                        e.usuario.contrasena
+                    },
+                    sede = e.sede != null ? e.sede.nombre : null
+                }).ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Empleados obtenidos con éxito",
+                    empleados
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener empleados: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Actualizar varios empleados (sede, fecha, estado)
+        [HttpPost]
+        public JsonResult BulkUpdateEmpleados(List<Empleado> empleadosActualizados)
+        {
+            try
+            {
+                if (empleadosActualizados == null || empleadosActualizados.Count == 0)
+                    return Json(new { success = false, message = "No se recibieron empleados." });
+
+                foreach (var emp in empleadosActualizados)
+                {
+                    var empDb = db.empleado.FirstOrDefault(e => e.empleadoid == emp.empleadoid);
+                    if (empDb != null)
+                    {
+                        empDb.sedeid = emp.sedeid;
+                        empDb.fechacontratacion = emp.fechacontratacion;
+                        empDb.estado = emp.estado;
+                    }
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Cambios guardados correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al actualizar empleados: {ex.Message}" });
+            }
+        }
+
+        //Eliminar empleado
+        [HttpPost]
+        public JsonResult DeleteEmpleado(long id)
+        {
+            try
+            {
+                var emp = db.empleado.FirstOrDefault(e => e.empleadoid == id);
+                if (emp == null)
+                    return Json(new { success = false, message = "Empleado no encontrado." });
+
+                var usuario = db.usuario.FirstOrDefault(u => u.usuarioid == emp.usuarioid);
+
+                db.empleado.Remove(emp);
+                if (usuario != null)
+                    db.usuario.Remove(usuario);
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Empleado y usuario eliminados." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al eliminar empleado: {ex.Message}" });
+            }
+        }
+
+        // Obtener sedes
+        [HttpGet]
+        public JsonResult GetSedes()
+        {
+            try
+            {
+                var sedes = db.sede
+                    .Select(s => new { s.sedeid, s.nombre })
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Sedes obtenidas con éxito",
+                    sedes
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener sedes: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Obtener horario de un empleado
+        [HttpGet]
+        public JsonResult GetHorario(long empleadoId)
+        {
+            try
+            {
+                var horariosDb = db.horario
+                    .Where(h => h.empleadoid == empleadoId)
+                    .ToList();
+
+                var dias = Enumerable.Range(0, 7).ToList();
+
+                var horarios = dias.Select(dia =>
+                {
+                    var h = horariosDb.FirstOrDefault(x => x.diasemana == dia);
+                    return new
+                    {
+                        horarioid = h?.horarioid ?? 0,
+                        diasemana = dia,
+                        horainicio = h != null ? h.horainicio.ToString(@"hh\:mm") : "",
+                        horafin = h != null ? h.horafin.ToString(@"hh\:mm") : "",
+                        estado = h?.estado ?? 0
+                    };
+                }).ToList();
+
+                return Json(new { success = true, message = "Horario obtenido con éxito", horarios },
+                    JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener horario: {ex.Message}" },
+                    JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Guardar/actualizar horarios
+        [HttpPost]
+        public JsonResult SaveHorario(long empleadoId, List<Horario> horarios)
+        {
+            try
+            {
+                if (empleadoId <= 0 || horarios == null)
+                    return Json(new { success = false, message = "Datos inválidos" });
+
+                foreach (var h in horarios)
+                {
+                    var horarioDb = db.horario
+                        .FirstOrDefault(x => x.empleadoid == empleadoId && x.diasemana == h.diasemana);
+
+                    if (horarioDb != null)
+                    {
+                         horarioDb.horainicio = h.horainicio;
+                         horarioDb.horafin = h.horafin;
+                         horarioDb.estado = h.estado;
+                    }
+                    else
+                    {
+                        // Crear nuevo 
+                        db.horario.Add(new Horario
+                        {
+                            empleadoid = empleadoId,
+                            diasemana = h.diasemana,
+                            horainicio = h.horainicio,
+                            horafin = h.horafin,
+                            estado = h.estado
+                        });
+                    }
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Horarios guardados correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al guardar horarios: {ex.Message}" });
+            }
+        }
+
+        // Obtener todos los administradores
+        [HttpGet]
+        public JsonResult GetAdministradores()
+        {
+            try
+            {
+                var admins = db.administrador
+                    .Include("usuario")
+                    .ToList()
+                    .Select(a => new
+                    {
+                        a.administradorid,
+                        a.usuarioid,
+                        usuario = new
+                        {
+                            a.usuario.nombre,
+                            a.usuario.apellido,
+                            a.usuario.email,
+                            a.usuario.telefono,
+                            a.usuario.contrasena
+                        }
+                    }).ToList();
+
+                return Json(new { success = true, message = "Administradores obtenidos con éxito", administradores = admins }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener administradores: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Eliminar un administrador
+        [HttpPost]
+        public JsonResult DeleteAdministrador(long adminid)
+        {
+            try
+            {
+                var admin = db.administrador.FirstOrDefault(a => a.administradorid == adminid);
+                if (admin == null)
+                    return Json(new { success = false, message = "Administrador no encontrado." });
+
+                var usuario = db.usuario.FirstOrDefault(u => u.usuarioid == admin.usuarioid);
+
+                db.administrador.Remove(admin);
+                if (usuario != null)
+                    db.usuario.Remove(usuario);
+
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Administrador eliminado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al eliminar administrador: {ex.Message}" });
+            }
+        }
+
+        public JsonResult GetEstadisticas(DateTime fechaInicio, DateTime fechaFin)
+        {
+            // -------------------
+            // Gráfico 1: autos lavados por empleado
+            // -------------------
+            var autosPorEmpleado = db.empleado
+                .Select(emp => new
+                {
+                    Nombre = emp.usuario.nombre + " " + emp.usuario.apellido,
+                    Cantidad = emp.citas
+                        .Count(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin)
+                })
+                .Where(x => x.Cantidad > 0)
+                .ToList();
+
+            // -------------------
+            // Gráfico 2: servicios por sede
+            // -------------------
+            var serviciosPorSede = db.sede
+                .Select(s => new
+                {
+                    s.nombre,
+                    Cantidad = s.citas
+                        .Count(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin)
+                })
+                .Where(x => x.Cantidad > 0)
+                .ToList();
+
+            // -------------------
+            // Tabla: total por tipo de servicio
+            // -------------------
+            var ingresosPorServicio = db.tiposervicio
+                .Select(ts => new
+                {
+                    ts.nombre,
+                    Precio = ts.precio,
+                    Cantidad = ts.citas
+                        .Count(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin),
+                    Total = ts.citas
+                        .Where(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin)
+                        .Select(c => (decimal?)c.tiposervicio.precio)
+                        .DefaultIfEmpty(0)
+                        .Sum() ?? 0
+                })
+                .Where(x => x.Cantidad > 0)
+                .ToList();
+
+            return Json(new
+            {
+                AutosPorEmpleado = autosPorEmpleado,
+                ServiciosPorSede = serviciosPorSede,
+                IngresosPorServicio = ingresosPorServicio
+            }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

@@ -15,6 +15,7 @@ namespace AquaDriveSP.Models
         public short diasemana { get; set; }
         public TimeSpan horainicio { get; set; }
         public TimeSpan horafin { get; set; }
+        public int estado { get; set; }
 
         public virtual Empleado empleado { get; set; }
     }

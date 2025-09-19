@@ -6,68 +6,37 @@
 @section Styles {
     <style>
         .admin-container {
-            width: 95%; /* ocupa casi todo el ancho de la pantalla */
-            max-width: 1800px; /* límite ancho en pantallas grandes */
-            margin: 40px auto; /* centra horizontalmente */
+            max-width: 1800px;
+            margin: 40px auto;
             padding: 20px;
             background: #e6f7ff;
             border-radius: 15px;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
-            text-align: center; /* centra título y botón */
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
         }
 
             .admin-container h2 {
-                text-align: center; /* título centrado */
-                margin-bottom: 20px;
-            }
-
-            .admin-container table {
-                width: 100%; /* tabla ocupa todo el ancho */
-                margin: 0 auto 20px auto; /* centrada dentro del container */
-                border-collapse: collapse;
-                table-layout: auto; /* columnas se adaptan al contenido */
-            }
-
-            .admin-container table,
-            .admin-container th,
-            .admin-container td {
-                border: 1px solid black;
-            }
-
-            /* Columna sede más ancha */
-            .admin-container th:nth-child(7),
-            .admin-container td:nth-child(7) {
-             min-width: 180px; /* ajusta según lo necesites */
-             }
-
-            .admin-container th,
-            .admin-container td {
-                padding: 10px;
                 text-align: center;
-                word-wrap: break-word;
+                margin-bottom: 25px;
             }
 
-            .admin-container .btn-success {
-                display: block;
-                margin: 20px auto 0 auto; /* centra el botón */
-            }
+        /* Botón guardar centrado */
+        .btn-save {
+            display: block;
+            margin: 20px auto 0 auto;
+        }
 
         .btn-blue {
             background-color: #00cfff;
             color: white;
             border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
         }
 
-        /* Contenedor de botones en acciones */
         .action-buttons {
             display: inline-flex;
-            gap: 6px; /* Espacio entre botones */
+            gap: 6px;
         }
 
+        /* Switch personalizado */
         .switch {
             position: relative;
             display: inline-block;
@@ -99,8 +68,8 @@
                 left: 3px;
                 bottom: 3px;
                 background-color: white;
-                transition: .4s;
                 border-radius: 50%;
+                transition: .4s;
             }
 
         input:checked + .slider {
@@ -110,101 +79,64 @@
             input:checked + .slider:before {
                 transform: translateX(26px);
             }
+
+        .sede-column {
+            min-width: 200px; /* ancho deseado */
+            max-width: 220px; /* opcional para que no crezca demasiado */
+        }
     </style>
 }
 
 <div class="admin-container">
     <h2>Gestionar Empleado</h2>
+
     <div class="table-responsive">
-        <table>
-            <thead>
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light text-center">
                 <tr>
-                    <th style="width: 10%;">Documento</th>
-                    <th style="width: 10%;">Nombre</th>
-                    <th style="width: 10%;">Apellido</th>
-                    <th style="width: 15%;">Email</th>
-                    <th style="width: 10%;">Teléfono</th>
-                    <th style="width: 10%;">Contraseña</th>
-                    <th style="width: 15%;">Sede</th>
-                    <th style="width: 10%;">Fecha contratación</th>
-                    <th style="width: 10%;">Estado</th>
-                    <th style="width: 10%;">Acciones</th>
+                    <th>Documento</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Contraseña</th>
+                    <th class="sede-column">Sede</th>
+                    <th>Fecha contratación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1013339221</td>
-                    <td>Juan</td>
-                    <td>Sosa</td>
-                    <td>juan.sosa@empresa.com</td>
-                    <td>3221233424</td>
-                    <td>Ng322VH4</td>
-                    <td>
-                        @Html.DropDownList("Sede", new SelectList(new[] { "Bogotá", "Medellín", "Cali" }), "Seleccionar", new { @class = "form-select" })
-                    </td>
-                    <td>
-                        <input type="date" class="form-control" />
-                    </td>
-                    <td>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <!-- Botón Horario -->
-                            <button class="btn-blue btn-sm" data-bs-toggle="modal" data-bs-target="#modalHorario" title="Asignar horario">
-                                <i class="bi bi-clock"></i>
-                            </button>
-                            <!-- Botón Eliminar -->
-                            <button class="btn btn-danger btn-sm" title="Eliminar">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
-    <button class="btn btn-success">Guardar</button>
+
+    <button class="btn btn-success btn-save">Guardar</button>
 </div>
 
 <!-- Modal Asignar Horario -->
 <div class="modal fade" id="modalHorario" tabindex="-1" aria-labelledby="modalHorarioLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalHorarioLabel">Asignar Horario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Día</th>
-                            <th>Hora inicio</th>
-                            <th>Hora fin</th>
-                            <th>Activo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var dia in new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" })
-                        {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle text-center">
+                        <thead class="table-light">
                             <tr>
-                                <td>@dia</td>
-                                <td><input type="time" class="form-control" /></td>
-                                <td><input type="time" class="form-control" /></td>
-                                <td>
-                                    <label class="switch">
-                                        <input type="checkbox" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
+                                <th>Día</th>
+                                <th>Hora inicio</th>
+                                <th>Hora fin</th>
+                                <th>Activo</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary">Guardar cambios</button>
@@ -214,5 +146,5 @@
 </div>
 
 @section Scripts {
-
+    <script src="~/ScriptsViews/GestionarEmpleado.js"></script>
 }
