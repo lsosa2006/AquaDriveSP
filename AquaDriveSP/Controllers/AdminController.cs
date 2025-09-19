@@ -30,30 +30,38 @@ namespace AquaDriveSP.Controllers
         #endregion
 
         #region Funciones
-        // 1. Obtener empleados con usuario y sede
+        // Obtener empleados con usuario y sede
         [HttpGet]
         public JsonResult GetEmpleados()
         {
             try
             {
-                var empleados = db.empleado
-                    .Select(e => new
+                // Traer los empleados con usuario y sede 
+                var empleadosDb = db.empleado
+                .Include("usuario")
+                .Include("sede")
+                .ToList();
+
+                // Mapear los datos a un objeto listo para JSON
+                var empleados = empleadosDb.Select(e => new
+                {
+                    e.empleadoid,
+                    e.usuarioid,
+                    e.sedeid,
+                    fechacontratacion = e.fechacontratacion.HasValue
+                        ? e.fechacontratacion.Value.ToString("yyyy-MM-dd") // formato válido para control HTL
+                        : null,
+                    e.estado,
+                    usuario = new
                     {
-                        e.empleadoid,
-                        e.usuarioid,
-                        e.sedeid,
-                        e.fechacontratacion,
-                        e.estado,
-                        usuario = new
-                        {
-                            e.usuario.nombre,
-                            e.usuario.apellido,
-                            e.usuario.email,
-                            e.usuario.telefono
-                        },
-                        sede = e.sede != null ? e.sede.nombre : null
-                    })
-                    .ToList();
+                        e.usuario.nombre,
+                        e.usuario.apellido,
+                        e.usuario.email,
+                        e.usuario.telefono,
+                        e.usuario.contrasena
+                    },
+                    sede = e.sede != null ? e.sede.nombre : null
+                }).ToList();
 
                 return Json(new
                 {
@@ -68,7 +76,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // 2. Actualizar varios empleados (sede, fecha, estado)
+        // Actualizar varios empleados (sede, fecha, estado)
         [HttpPost]
         public JsonResult BulkUpdateEmpleados(List<Empleado> empleadosActualizados)
         {
@@ -97,7 +105,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // 3. Eliminar empleado
+        //Eliminar empleado
         [HttpPost]
         public JsonResult DeleteEmpleado(long id)
         {
@@ -107,9 +115,14 @@ namespace AquaDriveSP.Controllers
                 if (emp == null)
                     return Json(new { success = false, message = "Empleado no encontrado." });
 
+                var usuario = db.usuario.FirstOrDefault(u => u.usuarioid == emp.usuarioid);
+
                 db.empleado.Remove(emp);
+                if (usuario != null)
+                    db.usuario.Remove(usuario);
+
                 db.SaveChanges();
-                return Json(new { success = true, message = "Empleado eliminado." });
+                return Json(new { success = true, message = "Empleado y usuario eliminados." });
             }
             catch (Exception ex)
             {
@@ -117,7 +130,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // 4. Obtener sedes
+        // Obtener sedes
         [HttpGet]
         public JsonResult GetSedes()
         {
@@ -140,37 +153,42 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // 5. Obtener horario de un empleado
+        // Obtener horario de un empleado
         [HttpGet]
         public JsonResult GetHorario(long empleadoId)
         {
             try
             {
-                var horarios = db.horario
+                var horariosDb = db.horario
                     .Where(h => h.empleadoid == empleadoId)
-                    .Select(h => new
-                    {
-                        h.horarioid,
-                        h.diasemana,
-                        horainicio = h.horainicio.ToString(@"hh\:mm"),
-                        horafin = h.horafin.ToString(@"hh\:mm")
-                    })
                     .ToList();
 
-                return Json(new
+                var dias = Enumerable.Range(0, 7).ToList();
+
+                var horarios = dias.Select(dia =>
                 {
-                    success = true,
-                    message = "Horario obtenido con éxito",
-                    horarios
-                }, JsonRequestBehavior.AllowGet);
+                    var h = horariosDb.FirstOrDefault(x => x.diasemana == dia);
+                    return new
+                    {
+                        horarioid = h?.horarioid ?? 0,
+                        diasemana = dia,
+                        horainicio = h != null ? h.horainicio.ToString(@"hh\:mm") : "",
+                        horafin = h != null ? h.horafin.ToString(@"hh\:mm") : "",
+                        estado = h?.estado ?? 0
+                    };
+                }).ToList();
+
+                return Json(new { success = true, message = "Horario obtenido con éxito", horarios },
+                    JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Error al obtener horario: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, message = $"Error al obtener horario: {ex.Message}" },
+                    JsonRequestBehavior.AllowGet);
             }
         }
 
-        // 6. Guardar/actualizar horarios
+        // Guardar/actualizar horarios
         [HttpPost]
         public JsonResult SaveHorario(long empleadoId, List<Horario> horarios)
         {
@@ -182,26 +200,25 @@ namespace AquaDriveSP.Controllers
                 foreach (var h in horarios)
                 {
                     var horarioDb = db.horario
-                        .FirstOrDefault(x => x.empleadoid == empleadoId &&
-                                             x.diasemana == h.diasemana);
+                        .FirstOrDefault(x => x.empleadoid == empleadoId && x.diasemana == h.diasemana);
 
                     if (horarioDb != null)
                     {
-                        // Actualizar
-                        horarioDb.horainicio = h.horainicio;
-                        horarioDb.horafin = h.horafin;
+                         horarioDb.horainicio = h.horainicio;
+                         horarioDb.horafin = h.horafin;
+                         horarioDb.estado = h.estado;
                     }
                     else
                     {
-                        // Crear
-                        var nuevo = new Horario
+                        // Crear nuevo 
+                        db.horario.Add(new Horario
                         {
                             empleadoid = empleadoId,
                             diasemana = h.diasemana,
                             horainicio = h.horainicio,
-                            horafin = h.horafin
-                        };
-                        db.horario.Add(nuevo);
+                            horafin = h.horafin,
+                            estado = h.estado
+                        });
                     }
                 }
 
@@ -213,7 +230,126 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = $"Error al guardar horarios: {ex.Message}" });
             }
         }
-        #endregion
 
+        // Obtener todos los administradores
+        [HttpGet]
+        public JsonResult GetAdministradores()
+        {
+            try
+            {
+                var admins = db.administrador
+                    .Include("usuario")
+                    .ToList()
+                    .Select(a => new
+                    {
+                        a.administradorid,
+                        a.usuarioid,
+                        usuario = new
+                        {
+                            a.usuario.nombre,
+                            a.usuario.apellido,
+                            a.usuario.email,
+                            a.usuario.telefono,
+                            a.usuario.contrasena
+                        }
+                    }).ToList();
+
+                return Json(new { success = true, message = "Administradores obtenidos con éxito", administradores = admins }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener administradores: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        // Eliminar un administrador
+        [HttpPost]
+        public JsonResult DeleteAdministrador(long adminid)
+        {
+            try
+            {
+                var admin = db.administrador.FirstOrDefault(a => a.administradorid == adminid);
+                if (admin == null)
+                    return Json(new { success = false, message = "Administrador no encontrado." });
+
+                var usuario = db.usuario.FirstOrDefault(u => u.usuarioid == admin.usuarioid);
+
+                db.administrador.Remove(admin);
+                if (usuario != null)
+                    db.usuario.Remove(usuario);
+
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Administrador eliminado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al eliminar administrador: {ex.Message}" });
+            }
+        }
+
+        public JsonResult GetEstadisticas(DateTime fechaInicio, DateTime fechaFin)
+        {
+            // -------------------
+            // Gráfico 1: autos lavados por empleado
+            // -------------------
+            var autosPorEmpleado = db.empleado
+                .Select(emp => new
+                {
+                    Nombre = emp.usuario.nombre + " " + emp.usuario.apellido,
+                    Cantidad = emp.citas
+                        .Count(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin)
+                })
+                .Where(x => x.Cantidad > 0)
+                .ToList();
+
+            // -------------------
+            // Gráfico 2: servicios por sede
+            // -------------------
+            var serviciosPorSede = db.sede
+                .Select(s => new
+                {
+                    s.nombre,
+                    Cantidad = s.citas
+                        .Count(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin)
+                })
+                .Where(x => x.Cantidad > 0)
+                .ToList();
+
+            // -------------------
+            // Tabla: total por tipo de servicio
+            // -------------------
+            var ingresosPorServicio = db.tiposervicio
+                .Select(ts => new
+                {
+                    ts.nombre,
+                    Precio = ts.precio,
+                    Cantidad = ts.citas
+                        .Count(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin),
+                    Total = ts.citas
+                        .Where(c => c.estado == "Finalizada" &&
+                                    c.fechahorafin >= fechaInicio &&
+                                    c.fechahorafin <= fechaFin)
+                        .Select(c => (decimal?)c.tiposervicio.precio)
+                        .DefaultIfEmpty(0)
+                        .Sum() ?? 0
+                })
+                .Where(x => x.Cantidad > 0)
+                .ToList();
+
+            return Json(new
+            {
+                AutosPorEmpleado = autosPorEmpleado,
+                ServiciosPorSede = serviciosPorSede,
+                IngresosPorServicio = ingresosPorServicio
+            }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

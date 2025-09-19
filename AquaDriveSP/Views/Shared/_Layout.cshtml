@@ -37,6 +37,9 @@
         }
 
         body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f8f9fa;
@@ -89,14 +92,17 @@
             display: block;
         }
 
+        main.main-content {
+            flex: 1; /* ocupa todo el espacio disponible */
+        }
+
         footer {
-            background: #13007c;
-            color: white;
+            background: #fff;
+            color: #333;
             text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            padding: 15px 0;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
         }
 
         /* Switch básico */
@@ -197,6 +203,7 @@
     <!-- 🔹 SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     @RenderSection("Scripts", required: false)
 

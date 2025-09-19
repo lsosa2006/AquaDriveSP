@@ -38,6 +38,7 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
+                string mensaje = ""; 
                 // Validaciones
                 if (_db.usuario.Any(u => u.email == correo))
                     return Json(new { exito = false, mensaje = "El correo ya está registrado." });
@@ -57,31 +58,34 @@ namespace AquaDriveSP.Controllers
                     fechacreacion = DateTime.Now
                 };
 
-                _db.usuario.Add(usuario);
-                _db.SaveChanges();
-
                 // Crear tipo de cuenta según selección
                 switch (tipoCuenta.ToLower())
                 {
                     case "cliente":
+                        _db.usuario.Add(usuario);
                         _db.cliente.Add(new Cliente { usuarioid = usuario.usuarioid });
+                        mensaje = "Usuario registrado correctamente.";
                         break;
 
                     case "empleado":
+                        _db.usuario.Add(usuario);
                         _db.empleado.Add(new Empleado
                         {
                             usuarioid = usuario.usuarioid,
                             sedeid = 0, // temporal, se puede actualizar
                             estado = "Pendiente"
                         });
+                        mensaje = "Usuario registrado correctamente, espera aprobación.";
                         break;
 
                     case "admin":
+                        _db.usuario.Add(usuario);
                         _db.administrador.Add(new Administrador
                         {
                             usuarioid = usuario.usuarioid,
-                            estado = "Pendiente"
+                            estado = "Aceptado"
                         });
+                        mensaje = "Usuario registrado correctamente.";
                         break;
 
                     default:
@@ -89,7 +93,7 @@ namespace AquaDriveSP.Controllers
                 }
 
                 _db.SaveChanges();
-                return Json(new { exito = true, mensaje = "Usuario registrado correctamente. Espera aprobación si es empleado o admin." });
+                return Json(new { exito = true, mensaje = mensaje });
             }
             catch (Exception ex)
             {

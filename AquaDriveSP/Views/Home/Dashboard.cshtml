@@ -1,4 +1,6 @@
-﻿@{
+﻿@model AquaDriveSP.ViewModels.DashboardAdminViewModel
+
+@{
     var rol = Session["Rol"] != null ? Session["Rol"].ToString() : "Invitado";
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = $"Inicio {rol}";
@@ -8,24 +10,29 @@
     <style>
         .container {
             display: flex;
-            justify-content: center; /* Centra las tarjetas horizontalmente */
-            align-items: flex-start;
-            gap: 30px; /* Separación entre tarjetas */
-            margin: 20px 40px 40px 40px;
-            flex-wrap: nowrap; /* Forzar que estén en una fila */
-            max-width: 1000px; /* Limita el ancho total del contenedor */
-            margin-left: auto;
-            margin-right: auto;
+            gap: 30px;
+            margin: 20px auto;
+            max-width: 1200px;
+            align-items: stretch; /* Esto hace que las tarjetas tengan igual altura */
+        }
+
+
+        .card-left, .card-right {
+            background: #e6f7ff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column; /* Para que el contenido se acomode verticalmente */
         }
 
         .card-left {
-            width: 35%; /* Tarjeta izquierda más estrecha */
-            min-width: 250px;
+            flex: 1; /* Se ajusta proporcionalmente */
         }
 
         .card-right {
-            width: 60%; /* Tarjeta derecha más ancha */
-            min-width: 300px;
+            flex: 1; /* Se ajusta proporcionalmente */
         }
 
         .card {
@@ -48,40 +55,45 @@
         ul {
             padding-left: 20px;
         }
+
+        canvas {
+            margin-top: 20px;
+        }
     </style>
 }
 
 <div class="container">
-
-    @if (ViewBag.Rol == "Admin")
+    @if (rol == "Admin" && Model != null)
     {
         <div class="card card-left">
             <h3>Top Empleados</h3>
             <ul>
-                @foreach (var e in ViewBag.TopEmpleados)
+                @foreach (var e in Model.TopEmpleados)
                 {
                     <li>@e</li>
                 }
             </ul>
 
-            <h3>Sedes</h3>
+            <h3>Lavados hoy por sede</h3>
             <ul>
-                @foreach (var s in ViewBag.Sedes)
+                @foreach (var s in Model.AutosPorSede)
                 {
-                    <li>@s.Key: @s.Value Lavados</li>
+                    <li>@s.Key: @(s.Value) Lavados</li>
                 }
             </ul>
         </div>
 
         <div class="card card-right">
-            <h3>Estadísticas</h3>
+            <h3>Estadísticas del día</h3>
             <ul>
-                <li>Autos lavados hoy: </li>
-                <li>Ingresos del día: $</li>
+                <li>Autos lavados hoy: @(Model.AutosPorSede.Values.Sum())</li>
+                <li>Ingresos del día: $@(Model.IngresosHoy)</li>
             </ul>
+
+            <canvas id="ingresosChart" height="250"></canvas>
         </div>
     }
-    else if (ViewBag.Rol == "Empleado")
+    else if (rol == "Empleado")
     {
         <div class="card">
             <h3>Mis tareas</h3>
@@ -94,7 +106,7 @@
             <p>Horas de trabajo: @ViewBag.HorasTrabajo</p>
         </div>
     }
-    else if (ViewBag.Rol == "Cliente")
+    else if (rol == "Cliente")
     {
         <div class="card">
             <h3>Mis Citas</h3>
@@ -109,7 +121,37 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         console.log("Dashboard cargado");
+
+        @if (rol == "Admin" && Model != null)
+        {
+            <text>
+            var ctx = document.getElementById('ingresosChart').getContext('2d');
+            var ingresosChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.DiasUltimos7Dias)),
+                    datasets: [{
+                        label: 'Ingresos últimos 7 días',
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.IngresosUltimos7Dias)),
+                        backgroundColor: '#00cfff', // Azul fluorescente
+                        borderColor: '#00cfff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            </text>
+        }
     </script>
 }
