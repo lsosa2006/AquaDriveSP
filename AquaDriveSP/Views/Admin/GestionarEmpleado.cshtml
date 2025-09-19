@@ -34,11 +34,11 @@
                 border: 1px solid black;
             }
 
-            /* Columna sede más ancha */
-            .admin-container th:nth-child(7),
-            .admin-container td:nth-child(7) {
-             min-width: 180px; /* ajusta según lo necesites */
-             }
+                /* Columna sede más ancha */
+                .admin-container th:nth-child(7),
+                .admin-container td:nth-child(7) {
+                    min-width: 180px; /* ajusta según lo necesites */
+                }
 
             .admin-container th,
             .admin-container td {
@@ -132,38 +132,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1013339221</td>
-                    <td>Juan</td>
-                    <td>Sosa</td>
-                    <td>juan.sosa@empresa.com</td>
-                    <td>3221233424</td>
-                    <td>Ng322VH4</td>
-                    <td>
-                        @Html.DropDownList("Sede", new SelectList(new[] { "Bogotá", "Medellín", "Cali" }), "Seleccionar", new { @class = "form-select" })
-                    </td>
-                    <td>
-                        <input type="date" class="form-control" />
-                    </td>
-                    <td>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <!-- Botón Horario -->
-                            <button class="btn-blue btn-sm" data-bs-toggle="modal" data-bs-target="#modalHorario" title="Asignar horario">
-                                <i class="bi bi-clock"></i>
-                            </button>
-                            <!-- Botón Eliminar -->
-                            <button class="btn btn-danger btn-sm" title="Eliminar">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                
             </tbody>
         </table>
     </div>
@@ -214,5 +183,5 @@
 </div>
 
 @section Scripts {
-
+    <script src="~/ScriptsViews/GeestionarEmpleado.js"></script>
 }

@@ -209,6 +209,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="images\AQUADRIVE SP.png" />
     <Content Include="images\AquaDriveSP_logo.png" />
+    <Content Include="ScriptsViews\GeestionarEmpleado.js" />
     <Content Include="ScriptsViews\IniciarSesion.js" />
     <Content Include="ScriptsViews\RecuperarContrasena.js" />
     <Content Include="ScriptsViews\Registro.js" />

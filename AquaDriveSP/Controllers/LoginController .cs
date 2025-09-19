@@ -71,7 +71,7 @@ namespace AquaDriveSP.Controllers
                         _db.empleado.Add(new Empleado
                         {
                             usuarioid = usuario.usuarioid,
-                            sedeid = 1, // temporal, se puede actualizar
+                            sedeid = 0, // temporal, se puede actualizar
                             estado = "Pendiente"
                         });
                         break;
