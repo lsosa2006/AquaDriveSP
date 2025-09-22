@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const btnGuardar = document.getElementById("btn-guardar");
+    const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
 
     btnGuardar.addEventListener("click", function () {
         let valid = true;
@@ -31,10 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
             email.classList.add("is-invalid");
         } else email.classList.remove("is-invalid");
 
-        const telefonoRegex = /^[0-9]{7,}$/;
+        const telefonoRegex = /^[0-9]{10}$/;
         if (!telefono.value.trim() || !telefonoRegex.test(telefono.value)) {
             valid = false;
-            errors.push("Ingresa un número de teléfono válido (mínimo 7 dígitos).");
+            errors.push("Ingresa un número de teléfono válido de 10 digitos.");
             telefono.classList.add("is-invalid");
         } else telefono.classList.remove("is-invalid");
 
@@ -58,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         // Llamado AJAX
+        spinnerModal.show();
         $.ajax({
             url: "/Cuenta/ActualizarDatosPersonales",
             method: "POST",
@@ -70,13 +72,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         title: "¡Éxito!",
                         text: data.message,
                         confirmButtonColor: "#3085d6"
+                    }).then(() => {
+                        spinnerModal.hide();
                     });
                 } else {
-                    Swal.fire("Error", data.message, "error");
+                    Swal.fire("Error", data.message, "error").then(() => {
+                        spinnerModal.hide();
+                    });
                 }
             },
             error: function () {
-                Swal.fire("Error", "No se pudo actualizar el usuario.", "error");
+                Swal.fire("Error", "No se pudo actualizar el usuario.", "error").then(() => {
+                    spinnerModal.hide();
+                });
             }
         });
     });

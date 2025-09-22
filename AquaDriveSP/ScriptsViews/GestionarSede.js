@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalEl = document.getElementById("modalSede");
     const form = document.getElementById("form-sede-modal");
     let sedes = [];
+    const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
 
     function cargarSedes() {
         $.ajax({
@@ -70,20 +71,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 text: "Esta accion no se puede deshacer.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Si, eliminar",
-                cancelButtonText: "Cancelar"
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+                customClass: {
+                    confirmButton: 'btn btn-success', // verde
+                    cancelButton: 'btn btn-danger'    // rojo
+                },
+                buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {
                 if (result.isConfirmed) {
+                    spinnerModal.show();
                     $.ajax({
                         url: "/Admin/DeleteSede",
                         method: "POST",
                         data: { sedeid },
                         success: function (data) {
                             if (data.success) {
-                                Swal.fire("Eliminado", "Sede eliminada.", "success");
-                                cargarSedes();
+                                Swal.fire("Eliminado", "Sede eliminada.", "success").then(() => {
+                                    spinnerModal.hide();
+                                    cargarSedes();
+                                });
+                                
                             } else {
-                                Swal.fire("Error", data.message, "error");
+                                Swal.fire("Error", data.message, "error").then(() => {
+                                    spinnerModal.hide();
+                                });;
                             }
                         }
                     });
@@ -130,6 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isNaN(editingId) && editingId > 0) {
             // modo edición
             nuevaSede.sedeid = editingId;
+            spinnerModal.show();
             $.ajax({
                 url: "/Admin/EditarSede",
                 method: "POST",
@@ -137,16 +150,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(nuevaSede),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Exito", data.message, "success");
-                        bootstrap.Modal.getInstance(modalEl).hide();
-                        cargarSedes();
+                        Swal.fire("Exito", data.message, "success").then(() => {
+                            spinnerModal.hide();
+                            bootstrap.Modal.getInstance(modalEl).hide();
+                            cargarSedes();
+                        });
                     } else {
-                        Swal.fire("Error", data.message, "error");
+                        Swal.fire("Error", data.message, "error").then(() => {
+                            spinnerModal.hide();
+                        });
                     }
                 }
             });
         } else {
             // modo crear
+            spinnerModal.show();
             $.ajax({
                 url: "/Admin/CrearSede",
                 method: "POST",
@@ -154,11 +172,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(nuevaSede),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Exito", data.message, "success");
-                        bootstrap.Modal.getInstance(modalEl).hide();
-                        cargarSedes();
+                        Swal.fire("Exito", data.message, "success").then(() => {
+                            spinnerModal.hide();
+                            bootstrap.Modal.getInstance(modalEl).hide();
+                            cargarSedes();
+                        });
                     } else {
-                        Swal.fire("Error", data.message, "error");
+                        Swal.fire("Error", data.message, "error").then(() => {
+                            spinnerModal.hide();
+                        });
                     }
                 }
             });

@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalEl = document.getElementById("modalServicio");
     const form = document.getElementById("form-servicio-modal");
     let servicios = [];
+    const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
 
     function cargarServicios() {
         $.ajax({
@@ -71,20 +72,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 text: "Esta accion no se puede deshacer.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Si, eliminar",
-                cancelButtonText: "Cancelar"
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+                customClass: {
+                    confirmButton: 'btn btn-success', // verde
+                    cancelButton: 'btn btn-danger'    // rojo
+                },
+                buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {
                 if (result.isConfirmed) {
+                    spinnerModal.show();
                     $.ajax({
                         url: "/Admin/DeleteServicio",
                         method: "POST",
                         data: { servicioid },
                         success: function (data) {
                             if (data.success) {
-                                Swal.fire("Eliminado", "Servicio eliminado.", "success");
-                                cargarServicios();
+                                Swal.fire("Eliminado", "Servicio eliminado.", "success").then(() => {
+                                    spinnerModal.hide();
+                                    cargarServicios();
+                                });
                             } else {
-                                Swal.fire("Error", data.message, "error");
+                                Swal.fire("Error", data.message, "error").then(() => {
+                                    spinnerModal.hide();
+                                });
                             }
                         }
                     });
@@ -147,6 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isNaN(editingId) && editingId > 0) {
             // EDICIÓN
             payload.tiposervicioid = editingId;
+            spinnerModal.show();
             $.ajax({
                 url: "/Admin/EditarServicio",
                 method: "POST",
@@ -154,23 +166,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(payload),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Exito", data.message, "success");
-                        const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modalInstance.hide();
-                        form.reset();
-                        btnAdd.dataset.editing = "";
-                        btnAdd.textContent = "AGREGAR";
-                        cargarServicios();
+                        Swal.fire("Exito", data.message, "success").then(() => {
+                            spinnerModal.hide();
+                            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modalInstance.hide();
+                            form.reset();
+                            btnAdd.dataset.editing = "";
+                            btnAdd.textContent = "AGREGAR";
+                            cargarServicios();
+                        });
                     } else {
-                        Swal.fire("Error", data.message, "error");
+                        Swal.fire("Error", data.message, "error").then(() => {
+                            spinnerModal.hide();
+                        });
                     }
                 },
                 error: function () {
-                    Swal.fire("Error", "No se pudo actualizar el servicio.", "error");
+                    Swal.fire("Error", "No se pudo actualizar el servicio.", "error").then(() => {
+                        spinnerModal.hide();
+                    });
                 }
             });
         } else {
             // CREACIÓN
+            spinnerModal.show();
             $.ajax({
                 url: "/Admin/CrearServicio",
                 method: "POST",
@@ -178,17 +197,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(payload),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Exito", data.message, "success");
-                        const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modalInstance.hide();
-                        form.reset();
-                        cargarServicios();
+                        Swal.fire("Exito", data.message, "success").then(() => {
+                            spinnerModal.hide();
+                            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modalInstance.hide();
+                            form.reset();
+                            cargarServicios();
+                        });
                     } else {
-                        Swal.fire("Error", data.message, "error");
+                        Swal.fire("Error", data.message, "error").then(() => {
+                            spinnerModal.hide();
+                        });
                     }
                 },
                 error: function () {
-                    Swal.fire("Error", "No se pudo crear el servicio.", "error");
+                    Swal.fire("Error", "No se pudo crear el servicio.", "error").then(() => {
+                        spinnerModal.hide();
+                    });
                 }
             });
         }

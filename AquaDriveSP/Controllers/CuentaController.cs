@@ -113,9 +113,6 @@ namespace AquaDriveSP.Controllers
                 if (nuevaContrasena != confirmarContrasena)
                     return Json(new { success = false, message = "Las contraseñas no coinciden" });
 
-                if (nuevaContrasena.Length < 6)
-                    return Json(new { success = false, message = "La nueva contraseña debe tener al menos 6 caracteres" });
-
                 usuarioDb.contrasena = nuevaContrasena;
                 db.SaveChanges();
 

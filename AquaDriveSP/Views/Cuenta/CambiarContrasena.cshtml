@@ -58,12 +58,23 @@
         <input type="password" id="confirmarContrasena" name="confirmarContrasena" placeholder="Confirmar Nueva Contraseña" required />
 
         <div class="form-buttons" style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
-            <button type="submit" class="btn btn-primary btn-lg">Cambiar Contraseña</button>
-            <a href="@Url.Action("Dashboard", "Home")" class="btn btn-secondary btn-lg">Cancelar</a>
+            <button type="submit" class="btn btn-success btn-lg">Cambiar Contraseña</button>
+            <a href="@Url.Action("Dashboard", "Home")" class="btn btn-danger btn-lg">Cancelar</a>
         </div>
     </form>
 </div>
-
+<!-- Modal con Spinner -->
+<div class="modal fade" id="spinnerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: transparent; border: none; box-shadow: none;">
+            <div class="d-flex justify-content-center align-items-center" style="height: 150px;">
+                <div class="spinner-border text-info" role="status" style="width: 4rem; height: 4rem;">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script src="~/ScriptsViews/CambiarContrasena.js"></script>
 }

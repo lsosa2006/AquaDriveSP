@@ -4,6 +4,7 @@
     // ---------------------------
     const tbody = document.querySelector(".admin-container tbody");
     const btnGuardar = document.querySelector(".admin-container .btn-success");
+    const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
     let sedes = []; // Lista de sedes desde backend
     let empleados = []; // Cache de empleados
     let empleadoIdHorario = null; // Empleado actualmente editando horario
@@ -154,7 +155,7 @@
             Swal.fire("Error", `Un empleado aceptado debe tener una sede asignada, fila: ${c}.`, "error");
             return;
         }
-
+        spinnerModal.show();
         // AJAX POST
         $.ajax({
             url: "/Admin/BulkUpdateEmpleados",
@@ -163,14 +164,20 @@
             data: JSON.stringify(empleadosActualizados),
             success: function (data) {
                 if (data.success) {
-                    Swal.fire("Éxito", data.message, "success");
-                    cargarEmpleados();
+                    Swal.fire("Éxito", data.message, "success").then(() => {
+                        spinnerModal.hide();
+                        cargarEmpleados();
+                    });
                 } else {
-                    Swal.fire("Error", data.message, "error");
+                    Swal.fire("Error", data.message, "error").then(() => {
+                        spinnerModal.hide();
+                    });
                 }
             },
             error: function () {
-                Swal.fire("Error", "No se pudieron guardar los cambios.", "error");
+                Swal.fire("Error", "No se pudieron guardar los cambios.", "error").then(() => {
+                    spinnerModal.hide();
+                });;
             }
         });
     });
@@ -190,19 +197,30 @@
                 text: "Esta acción no se puede deshacer.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Sí, eliminar"
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+                customClass: {
+                    confirmButton: 'btn btn-success', // verde
+                    cancelButton: 'btn btn-danger'    // rojo
+                },
+                buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {
                 if (result.isConfirmed) {
+                    spinnerModal.show();
                     $.ajax({
                         url: "/Admin/DeleteEmpleado",
                         method: "POST",
                         data: { id },
                         success: function (data) {
                             if (data.success) {
-                                Swal.fire("Eliminado", "Empleado eliminado.", "success");
-                                cargarEmpleados();
+                                Swal.fire("Eliminado", "Empleado eliminado.", "success").then(() => {
+                                    spinnerModal.hide();
+                                    cargarEmpleados();
+                                });
                             } else {
-                                Swal.fire("Error", data.message, "error");
+                                Swal.fire("Error", data.message, "error").then(() => {
+                                    spinnerModal.hide();
+                                });
                             }
                         }
                     });
@@ -300,7 +318,8 @@
                 estado: activo
             });
         });
-
+        spinnerModal.show();
+        
         if (!valido) return; 
         $.ajax({
             url: "/Admin/SaveHorario",
@@ -309,14 +328,20 @@
             data: JSON.stringify({ empleadoId: empleadoIdHorario, horarios }),
             success: function (data) {
                 if (data.success) {
-                    Swal.fire("Éxito", data.message, "success");
-                    bootstrap.Modal.getInstance(document.getElementById("modalHorario")).hide();
+                    Swal.fire("Éxito", data.message, "success").then(() => {
+                        spinnerModal.hide();
+                        bootstrap.Modal.getInstance(document.getElementById("modalHorario")).hide();
+                    });
                 } else {
-                    Swal.fire("Error", data.message, "error");
+                    Swal.fire("Error", data.message, "error").then(() => {
+                        spinnerModal.hide();
+                    });;
                 }
             },
             error: function () {
-                Swal.fire("Error", "No se pudieron guardar los horarios.", "error");
+                Swal.fire("Error", "No se pudieron guardar los horarios.", "error").then(() => {
+                    spinnerModal.hide();
+                });;
             }
         });
     });

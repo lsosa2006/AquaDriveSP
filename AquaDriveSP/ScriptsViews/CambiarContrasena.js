@@ -2,7 +2,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form-cambiar-contrasena");
     if (!form) return;
 
-    form.addEventListener("submit", async function (e) {
+    const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
+
+    form.addEventListener("submit", function (e) {
         e.preventDefault();
 
         const usuarioid = document.querySelector("input[name='usuarioid']").value;
@@ -13,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let valid = true;
         let errors = [];
 
+        // VALIDACIONES
         if (!actual.value.trim()) {
             valid = false;
             errors.push("Debes ingresar tu contraseña actual.");
@@ -25,9 +28,9 @@ document.addEventListener("DOMContentLoaded", function () {
             nueva.classList.add("is-invalid");
         } else nueva.classList.remove("is-invalid");
 
-        if (nueva.value.trim() && nueva.value.length < 6) {
+        if ((nueva.value.trim() && nueva.value.length < 4) || nueva.value.length > 8) {
             valid = false;
-            errors.push("La nueva contraseña debe tener al menos 6 caracteres.");
+            errors.push("La nueva contraseña debe tener entre 4 y 8 caracteres.");
             nueva.classList.add("is-invalid");
         }
 
@@ -47,41 +50,49 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        try {
-            const response = await fetch("/Cuenta/CambiarContrasena", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]')?.value || ""
-                },
-                body: JSON.stringify({
-                    usuarioid,
-                    contrasenaActual: actual.value,
-                    nuevaContrasena: nueva.value,
-                    confirmarContrasena: confirmar.value
-                })
-            });
+        // MOSTRAR SPINNER
+        spinnerModal.show();
 
-            const data = await response.json();
-
-            Swal.fire({
-                icon: data.success ? "success" : "error",
-                title: data.success ? "Contraseña cambiada" : "Error",
-                text: data.message,
-                confirmButtonColor: data.success ? "#3085d6" : "#d33"
-            }).then(() => {
-                if (data.success) {
-                    window.location.href = "/Home/Dashboard";
-                }
-            });
-
-        } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Hubo un problema al procesar la solicitud.",
-                confirmButtonColor: "#d33"
-            });
-        }
+        $.ajax({
+            url: "/Cuenta/CambiarContrasena",
+            type: "POST",
+            contentType: "application/json",
+            headers: {
+                "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]')?.value || ""
+            },
+            data: JSON.stringify({
+                usuarioid,
+                contrasenaActual: actual.value,
+                nuevaContrasena: nueva.value,
+                confirmarContrasena: confirmar.value
+            }),
+            success: function (data) {
+                Swal.fire({
+                    icon: data.success ? "success" : "error",
+                    title: data.success ? "Contraseña cambiada" : "Error",
+                    text: data.message,
+                    confirmButtonColor: data.success ? "#3085d6" : "#d33"
+                }).then(() => {
+                    spinnerModal.hide();
+                    if (data.success) {
+                        actual.value = "";
+                        nueva.value = "";
+                        confirmar.value = "";
+                        window.location.href = "/Home/Dashboard";
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("Error AJAX:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Hubo un problema al procesar la solicitud.",
+                    confirmButtonColor: "#d33"
+                }).then(() => {
+                    spinnerModal.hide();
+                });
+            }
+        });
     });
 });

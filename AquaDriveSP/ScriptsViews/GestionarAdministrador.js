@@ -5,6 +5,7 @@
     const tbody = document.querySelector(".admin-container tbody");
     const btnAdd = document.getElementById("btn-add");
     let administradores = []; // Cache de administradores
+    const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
 
     // ---------------------------
     // 1. Cargar administradores desde backend
@@ -68,9 +69,6 @@
     // ---------------------------
     // 3. Crear administrador
     // ---------------------------
-    // ---------------------------
-    // 3. Crear administrador
-    // ---------------------------
     btnAdd.addEventListener("click", function () {
         let valido = true;
         const nuevoAdmin = {};
@@ -84,7 +82,7 @@
         });
 
         // Validación de campos específicos
-        const docRegex = /^\d{6,10}$/; // documento 6-10 dígitos
+        const docRegex = /^\d{10}$/; // documento 10 dígitos
         const telRegex = /^\d{10}$/;   // teléfono 10 dígitos
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // formato email
         const passRegex = /^.{4,8}$/;  // contraseña 4-8 caracteres
@@ -95,7 +93,7 @@
         }
 
         if (!docRegex.test(nuevoAdmin.documento)) {
-            Swal.fire("Error", "El documento debe tener entre 6 y 10 dígitos numéricos.", "error");
+            Swal.fire("Error", "El documento debe tener 10 dígitos numéricos.", "error");
             return;
         }
 
@@ -113,7 +111,7 @@
             Swal.fire("Error", "La contraseña debe tener entre 4 y 8 caracteres.", "error");
             return;
         }
-
+        spinnerModal.show();
         // AJAX POST para crear administrador usando el método Registro
         $.ajax({
             url: "/Login/Registro",
@@ -130,18 +128,24 @@
             }),
             success: function (data) {
                 if (data.exito) {
-                    Swal.fire("Éxito", data.mensaje, "success");
-                    // Limpiar campos
-                    campos.forEach(id => document.getElementById(id).value = "");
-                    // Cerrar modal
-                    bootstrap.Modal.getInstance(document.getElementById("modalAdmin")).hide();
-                    cargarAdministradores();
+                    Swal.fire("Éxito", data.mensaje, "success").then(() => {
+                        spinnerModal.hide();
+                        // Limpiar campos
+                        campos.forEach(id => document.getElementById(id).value = "");
+                        // Cerrar modal
+                        bootstrap.Modal.getInstance(document.getElementById("modalAdmin")).hide();
+                        cargarAdministradores();
+                    });
                 } else {
-                    Swal.fire("Error", data.mensaje, "error");
+                    Swal.fire("Error", data.mensaje, "error").then(() => {
+                        spinnerModal.hide();
+                    });
                 }
             },
             error: function () {
-                Swal.fire("Error", "No se pudo crear el administrador.", "error");
+                Swal.fire("Error", "No se pudo crear el administrador.", "error").then(() => {
+                    spinnerModal.hide();
+                });
             }
         });
     });
@@ -169,20 +173,28 @@
                 buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {
                 if (result.isConfirmed) {
+                    spinnerModal.show();
                     $.ajax({
                         url: "/Admin/DeleteAdministrador",
                         method: "POST",
                         data: { adminid },
                         success: function (data) {
                             if (data.success) {
-                                Swal.fire("Eliminado", "Administrador eliminado.", "success");
-                                cargarAdministradores();
+                                Swal.fire("Eliminado", "Administrador eliminado.", "success").then(() => {
+                                    spinnerModal.hide();
+                                    cargarAdministradores();
+                                });
+                                
                             } else {
-                                Swal.fire("Error", data.message, "error");
+                                Swal.fire("Error", data.message, "error").then(() => {
+                                    spinnerModal.hide();
+                                });
                             }
                         },
                         error: function () {
-                            Swal.fire("Error", "No se pudo eliminar el administrador.", "error");
+                            Swal.fire("Error", "No se pudo eliminar el administrador.", "error").then(() => {
+                                spinnerModal.hide();
+                            });
                         }
                     });
                 }
