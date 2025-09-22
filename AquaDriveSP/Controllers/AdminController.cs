@@ -27,6 +27,14 @@ namespace AquaDriveSP.Controllers
         {
             return View();
         }
+        public ActionResult GestionarSede()
+        {
+            return View();
+        }
+        public ActionResult GestionarServicio()
+        {
+            return View();
+        }
         #endregion
 
         #region Funciones
@@ -127,29 +135,6 @@ namespace AquaDriveSP.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"Error al eliminar empleado: {ex.Message}" });
-            }
-        }
-
-        // Obtener sedes
-        [HttpGet]
-        public JsonResult GetSedes()
-        {
-            try
-            {
-                var sedes = db.sede
-                    .Select(s => new { s.sedeid, s.nombre })
-                    .ToList();
-
-                return Json(new
-                {
-                    success = true,
-                    message = "Sedes obtenidas con éxito",
-                    sedes
-                }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Error al obtener sedes: {ex.Message}" }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -349,6 +334,166 @@ namespace AquaDriveSP.Controllers
                 ServiciosPorSede = serviciosPorSede,
                 IngresosPorServicio = ingresosPorServicio
             }, JsonRequestBehavior.AllowGet);
+        }
+
+        // Obtener sedes
+        [HttpGet]
+        public JsonResult GetSedes()
+        {
+            try
+            {
+                var sedes = db.sede
+                    .Select(s => new
+                    {
+                        s.sedeid,
+                        s.nombre,
+                        s.direccion,
+                        s.telefono
+                    }).ToList();
+
+                return Json(new { success = true, message = "Sedes obtenidas con éxito", sedes }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener sedes: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost]
+        public JsonResult CrearSede(Sede nuevaSede)
+        {
+            try
+            {
+                db.sede.Add(nuevaSede);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Sede creada con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al crear sede: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteSede(long sedeid)
+        {
+            try
+            {
+                var sede = db.sede.Find(sedeid);
+                if (sede == null)
+                    return Json(new { success = false, message = "Sede no encontrada" });
+
+                db.sede.Remove(sede);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Sede eliminada con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al eliminar sede: {ex.Message}" });
+            }
+        }
+        [HttpPost]
+        public JsonResult EditarSede(Sede sedeActualizada)
+        {
+            try
+            {
+                var sede = db.sede.Find(sedeActualizada.sedeid);
+                if (sede == null)
+                    return Json(new { success = false, message = "Sede no encontrada" });
+
+                sede.nombre = sedeActualizada.nombre;
+                sede.direccion = sedeActualizada.direccion;
+                sede.telefono = sedeActualizada.telefono;
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Sede actualizada con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al editar sede: {ex.Message}" });
+            }
+        }
+
+
+        //Obtener servicio
+        [HttpGet]
+        public JsonResult GetServicios()
+        {
+            try
+            {
+                var servicio = db.tiposervicio
+                    .Select(ts => new
+                    {
+                        ts.tiposervicioid,
+                        ts.nombre,
+                        ts.duracionminutos,
+                        ts.precio
+                    }).ToList();
+
+                return Json(new { success = true, message = "Servicios obtenido con éxito", servicio }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al obtener los servicios: {ex.Message}" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        [HttpPost]
+        public JsonResult CrearServicio(TipoServicio nuevoServicio)
+        {
+            try
+            {
+                db.tiposervicio.Add(nuevoServicio);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Servicio creada con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al crear servicio: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteServicio(long servicioid)
+        {
+            try
+            {
+                var servicio = db.tiposervicio.Find(servicioid);
+                if (servicio == null)
+                    return Json(new { success = false, message = "Servicio no encontrado" });
+
+                db.tiposervicio.Remove(servicio);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Servicio eliminado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al eliminar Servicio: {ex.Message}" });
+            }
+        }
+        [HttpPost]
+        public JsonResult EditarServicio(TipoServicio servicioActualizado)
+        {
+            try
+            {
+                var servicio = db.tiposervicio.Find(servicioActualizado.tiposervicioid);
+                if (servicio == null)
+                    return Json(new { success = false, message = "Servicio no encontrado" });
+
+                servicio.nombre = servicioActualizado.nombre;
+                servicio.duracionminutos = servicioActualizado.duracionminutos;
+                servicio.precio = servicioActualizado.precio;
+
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Servicio actualizado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al editar servicio: {ex.Message}" });
+            }
         }
         #endregion
     }

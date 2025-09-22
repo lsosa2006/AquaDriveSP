@@ -1,0 +1,69 @@
+﻿@model AquaDriveSP.Models.Usuario
+
+@{
+    ViewBag.Title = "Cambiar Contraseña";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .contrasena-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 25px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+        }
+
+            .contrasena-container h3 {
+                text-align: center;
+                margin-bottom: 25px;
+            }
+
+        #form-cambiar-contrasena {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+            #form-cambiar-contrasena input {
+                padding: 10px;
+                border-radius: 10px;
+                border: 1px solid #ccc;
+            }
+
+        .btn-primary {
+            background-color: #00cfff;
+            border: none;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #d9d9d9;
+            border: none;
+            color: black;
+        }
+    </style>
+}
+
+<div class="contrasena-container">
+    <h3>Cambiar Contraseña</h3>
+
+    <form id="form-cambiar-contrasena">
+        @Html.HiddenFor(m => m.usuarioid)
+
+        <input type="password" id="contrasenaActual" name="contrasenaActual" placeholder="Contraseña Actual" required />
+        <input type="password" id="nuevaContrasena" name="nuevaContrasena" placeholder="Nueva Contraseña" required />
+        <input type="password" id="confirmarContrasena" name="confirmarContrasena" placeholder="Confirmar Nueva Contraseña" required />
+
+        <div class="form-buttons" style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
+            <button type="submit" class="btn btn-primary btn-lg">Cambiar Contraseña</button>
+            <a href="@Url.Action("Dashboard", "Home")" class="btn btn-secondary btn-lg">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/ScriptsViews/CambiarContrasena.js"></script>
+}

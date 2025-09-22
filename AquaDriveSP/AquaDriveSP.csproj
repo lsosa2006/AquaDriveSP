@@ -186,11 +186,8 @@
     <Compile Include="Models\Horario.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="ScriptsViews\CambiarContrasena.js" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
-    <Content Include="ScriptsViews\Estadisticas.js" />
-    <Content Include="ScriptsViews\GestionarAdministrador.js" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -207,12 +204,19 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="ScriptsViews\EditarDatos.js" />
+    <Content Include="ScriptsViews\Estadisticas.js" />
+    <Content Include="ScriptsViews\GestionarAdministrador.js" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="images\AQUADRIVE SP.png" />
     <Content Include="images\AquaDriveSP_logo.png" />
     <Content Include="ScriptsViews\GestionarEmpleado.js" />
+    <Content Include="ScriptsViews\GestionarSede.js" />
+    <Content Include="ScriptsViews\GestionarServicio.js" />
     <Content Include="ScriptsViews\IniciarSesion.js" />
     <Content Include="ScriptsViews\RecuperarContrasena.js" />
     <Content Include="ScriptsViews\Registro.js" />
@@ -251,6 +255,10 @@
     <Content Include="Views\Admin\GestionarAdministrador.cshtml" />
     <Content Include="Views\Admin\GestionarEmpleado.cshtml" />
     <Content Include="Views\Admin\Estadisticas.cshtml" />
+    <Content Include="Views\Admin\GestionarSede.cshtml" />
+    <Content Include="Views\Admin\GestionarServicio.cshtml" />
+    <Content Include="Views\Cuenta\EditarDatos.cshtml" />
+    <Content Include="Views\Cuenta\CambiarContrasena.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

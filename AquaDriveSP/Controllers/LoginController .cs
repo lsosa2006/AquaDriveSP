@@ -132,6 +132,7 @@ namespace AquaDriveSP.Controllers
                     rol = "Cliente";
                     FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
                     // Guardar rol en Session (opcional)
+                    Session["UsuarioId"] = usuario.usuarioid;
                     Session["Rol"] = rol;
                     return Json(new
                     {
@@ -152,6 +153,7 @@ namespace AquaDriveSP.Controllers
                     rol = "Empleado";
                     FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
                     // Guardar rol en Session (opcional)
+                    Session["UsuarioId"] = usuario.usuarioid;
                     Session["Rol"] = rol;
                     return Json(new
                     {
@@ -172,6 +174,7 @@ namespace AquaDriveSP.Controllers
                     rol = "Admin";
                     FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
                     // Guardar rol en Session (opcional)
+                    Session["UsuarioId"] = usuario.usuarioid;
                     Session["Rol"] = rol;
                     return Json(new
                     {
