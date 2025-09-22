@@ -13,9 +13,8 @@
             gap: 30px;
             margin: 20px auto;
             max-width: 1200px;
-            align-items: stretch; /* Esto hace que las tarjetas tengan igual altura */
+            align-items: stretch;
         }
-
 
         .card-left, .card-right {
             background: #e6f7ff;
@@ -24,15 +23,15 @@
             box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
             font-size: 1.1rem;
             display: flex;
-            flex-direction: column; /* Para que el contenido se acomode verticalmente */
+            flex-direction: column;
         }
 
         .card-left {
-            flex: 1; /* Se ajusta proporcionalmente */
+            flex: 1;
         }
 
         .card-right {
-            flex: 1; /* Se ajusta proporcionalmente */
+            flex: 1;
         }
 
         .card {
@@ -48,16 +47,29 @@
                 margin-bottom: 20px;
             }
 
+        .charts {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .chart-box {
+            flex: 1;
+            min-width: 400px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
         .stars {
             color: gold;
         }
 
         ul {
             padding-left: 20px;
-        }
-
-        canvas {
-            margin-top: 20px;
         }
     </style>
 }
@@ -90,7 +102,11 @@
                 <li>Ingresos del día: $@(Model.IngresosHoy)</li>
             </ul>
 
-            <canvas id="ingresosChart" height="250"></canvas>
+            <div class="charts">
+                <div class="chart-box">
+                    <canvas id="ingresosChart" height="250"></canvas>
+                </div>
+            </div>
         </div>
     }
     else if (rol == "Empleado")
@@ -123,31 +139,52 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        console.log("Dashboard cargado");
-
         @if (rol == "Admin" && Model != null)
         {
             <text>
             var ctx = document.getElementById('ingresosChart').getContext('2d');
             var ingresosChart = new Chart(ctx, {
-                type: 'bar',
+                type: "bar",
                 data: {
                     labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.DiasUltimos7Dias)),
                     datasets: [{
-                        label: 'Ingresos últimos 7 días',
+                        label: "Ingresos",
                         data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.IngresosUltimos7Dias)),
-                        backgroundColor: '#00cfff', // Azul fluorescente
-                        borderColor: '#00cfff',
-                        borderWidth: 1
+                        backgroundColor: "#00cfff"
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: "Ingresos últimos 7 días",
+                            color: "#333",
+                            font: {
+                                size: 18,
+                                weight: "bold"
+                            },
+                            padding: { top: 10, bottom: 20 }
+                        }
                     },
                     scales: {
-                        y: { beginAtZero: true }
+                        x: {
+                            title: { display: true, text: "Días" },
+                            ticks: {
+                                maxRotation: 0, // Fuerza etiquetas horizontales
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: "Monto ($)" },
+                            ticks: {
+                                callback: function (value) {
+                                    return "$" + value.toLocaleString();
+                                }
+                            }
+                        }
                     }
                 }
             });

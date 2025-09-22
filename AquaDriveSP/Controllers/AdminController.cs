@@ -275,66 +275,79 @@ namespace AquaDriveSP.Controllers
 
         public JsonResult GetEstadisticas(DateTime fechaInicio, DateTime fechaFin)
         {
-            // -------------------
-            // Gráfico 1: autos lavados por empleado
-            // -------------------
-            var autosPorEmpleado = db.empleado
-                .Select(emp => new
-                {
-                    Nombre = emp.usuario.nombre + " " + emp.usuario.apellido,
-                    Cantidad = emp.citas
-                        .Count(c => c.estado == "Finalizada" &&
-                                    c.fechahorafin >= fechaInicio &&
-                                    c.fechahorafin <= fechaFin)
-                })
-                .Where(x => x.Cantidad > 0)
-                .ToList();
-
-            // -------------------
-            // Gráfico 2: servicios por sede
-            // -------------------
-            var serviciosPorSede = db.sede
-                .Select(s => new
-                {
-                    s.nombre,
-                    Cantidad = s.citas
-                        .Count(c => c.estado == "Finalizada" &&
-                                    c.fechahorafin >= fechaInicio &&
-                                    c.fechahorafin <= fechaFin)
-                })
-                .Where(x => x.Cantidad > 0)
-                .ToList();
-
-            // -------------------
-            // Tabla: total por tipo de servicio
-            // -------------------
-            var ingresosPorServicio = db.tiposervicio
-                .Select(ts => new
-                {
-                    ts.nombre,
-                    Precio = ts.precio,
-                    Cantidad = ts.citas
-                        .Count(c => c.estado == "Finalizada" &&
-                                    c.fechahorafin >= fechaInicio &&
-                                    c.fechahorafin <= fechaFin),
-                    Total = ts.citas
-                        .Where(c => c.estado == "Finalizada" &&
-                                    c.fechahorafin >= fechaInicio &&
-                                    c.fechahorafin <= fechaFin)
-                        .Select(c => (decimal?)c.tiposervicio.precio)
-                        .DefaultIfEmpty(0)
-                        .Sum() ?? 0
-                })
-                .Where(x => x.Cantidad > 0)
-                .ToList();
-
-            return Json(new
+            try
             {
-                AutosPorEmpleado = autosPorEmpleado,
-                ServiciosPorSede = serviciosPorSede,
-                IngresosPorServicio = ingresosPorServicio
-            }, JsonRequestBehavior.AllowGet);
+                // -------------------
+                // Gráfico 1: autos lavados por empleado
+                // -------------------
+                var autosPorEmpleado = db.empleado
+                    .Select(emp => new
+                    {
+                        Nombre = emp.usuario.nombre + " " + emp.usuario.apellido,
+                        Cantidad = emp.citas
+                            .Count(c => c.estado == "Finalizada" &&
+                                        c.fechahorafin >= fechaInicio &&
+                                        c.fechahorafin <= fechaFin)
+                    })
+                    .Where(x => x.Cantidad > 0)
+                    .ToList();
+
+                // -------------------
+                // Gráfico 2: servicios por sede
+                // -------------------
+                var serviciosPorSede = db.sede
+                    .Select(s => new
+                    {
+                        s.nombre,
+                        Cantidad = s.citas
+                            .Count(c => c.estado == "Finalizada" &&
+                                        c.fechahorafin >= fechaInicio &&
+                                        c.fechahorafin <= fechaFin)
+                    })
+                    .Where(x => x.Cantidad > 0)
+                    .ToList();
+
+                // -------------------
+                // Tabla: total por tipo de servicio
+                // -------------------
+                var ingresosPorServicio = db.tiposervicio
+                    .Select(ts => new
+                    {
+                        ts.nombre,
+                        Precio = ts.precio,
+                        Cantidad = ts.citas
+                            .Count(c => c.estado == "Finalizada" &&
+                                        c.fechahorafin >= fechaInicio &&
+                                        c.fechahorafin <= fechaFin),
+                        Total = ts.citas
+                            .Where(c => c.estado == "Finalizada" &&
+                                        c.fechahorafin >= fechaInicio &&
+                                        c.fechahorafin <= fechaFin)
+                            .Select(c => (decimal?)c.tiposervicio.precio)
+                            .DefaultIfEmpty(0)
+                            .Sum() ?? 0
+                    })
+                    .Where(x => x.Cantidad > 0)
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    AutosPorEmpleado = autosPorEmpleado,
+                    ServiciosPorSede = serviciosPorSede,
+                    IngresosPorServicio = ingresosPorServicio
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error al obtener estadísticas: " + ex.Message
+                }, JsonRequestBehavior.AllowGet);
+            }
         }
+
 
         // Obtener sedes
         [HttpGet]
