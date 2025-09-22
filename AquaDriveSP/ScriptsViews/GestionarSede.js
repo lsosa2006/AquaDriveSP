@@ -66,11 +66,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (e.target.closest(".btn-eliminar")) {
             Swal.fire({
-                title: "¿Eliminar sede?",
-                text: "Esta acción no se puede deshacer.",
+                title: "Eliminar sede",
+                text: "Esta accion no se puede deshacer.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Sí, eliminar",
+                confirmButtonText: "Si, eliminar",
                 cancelButtonText: "Cancelar"
             }).then(result => {
                 if (result.isConfirmed) {
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(nuevaSede),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Éxito", data.message, "success");
+                        Swal.fire("Exito", data.message, "success");
                         bootstrap.Modal.getInstance(modalEl).hide();
                         cargarSedes();
                     } else {
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(nuevaSede),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Éxito", data.message, "success");
+                        Swal.fire("Exito", data.message, "success");
                         bootstrap.Modal.getInstance(modalEl).hide();
                         cargarSedes();
                     } else {

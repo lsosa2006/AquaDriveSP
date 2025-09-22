@@ -14,18 +14,21 @@ document.addEventListener("DOMContentLoaded", function () {
             const contrasena = document.getElementById("contrasena").value.trim();
             const tipoCuentaInput = document.querySelector("input[name='tipoCuenta']:checked");
             const tipoCuenta = tipoCuentaInput ? tipoCuentaInput.value : "";
+            const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
 
             // Validaciones
             if (!usuarioId || isNaN(usuarioId)) {
                 Swal.fire("Error", "El documento debe ser un numero valido.", "error");
                 return;
             }
-            if (nombre.length < 2) {
-                Swal.fire("Error", "El nombre debe tener al menos 2 caracteres.", "error");
+
+            if (nombre.length < 2 || !regexLetras.test(nombre)) {
+                Swal.fire("Error", "El nombre debe tener al menos 2 caracteres y solo contener letras.", "error");
                 return;
             }
-            if (apellido.length < 2) {
-                Swal.fire("Error", "El apellido debe tener al menos 2 caracteres.", "error");
+
+            if (apellido.length < 2 || !regexLetras.test(apellido)) {
+                Swal.fire("Error", "El apellido debe tener al menos 2 caracteres y solo contener letras.", "error");
                 return;
             }
             const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,9 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 Swal.fire("Error", "Ingresa un correo electronico valido.", "error");
                 return;
             }
-            const regexTelefono = /^[0-9]{7,15}$/;
+            const regexTelefono = /^[0-9]{10}$/;
             if (!regexTelefono.test(telefono)) {
-                Swal.fire("Error", "El telefono debe contener solo numeros (7-15 dígitos).", "error");
+                Swal.fire("Error", "El telefono debe contener solo numeros (10 digitos).", "error");
                 return;
             }
             if (contrasena.length < 4 || contrasena.lenght > 8) {

@@ -288,7 +288,7 @@
 
             // Validar que hora inicio < hora fin si está activo
             if (hInicio >= hFin) {
-                Swal.fire("Error", `La hora de inicio debe ser menor que la hora fin en el día ${dia}.`, "error");
+                Swal.fire("Error", `La hora de inicio debe ser menor que la hora fin en el día ${nombresDias[dia]}.`, "error");
                 valido = false;
                 return;
             }
@@ -327,4 +327,17 @@
     // ---------------------------
     cargarSedes();
     cargarEmpleados();
+
+    // ---------------------------
+    // 8. Buscador en tabla
+    // ---------------------------
+    document.getElementById("buscador").addEventListener("keyup", function () {
+        const filtro = this.value.toLowerCase();
+        const filas = tbody.querySelectorAll("tr");
+
+        filas.forEach(fila => {
+            const textoFila = fila.innerText.toLowerCase();
+            fila.style.display = textoFila.includes(filtro) ? "" : "none";
+        });
+    });
 });

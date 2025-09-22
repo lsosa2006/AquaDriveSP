@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (data.exito) {
                         Swal.fire({
                             icon: "success",
-                            title: "¡Exito!",
+                            title: "Exito",
                             text: data.mensaje,
                             confirmButtonColor: "#3085d6"
                         }).then(() => {

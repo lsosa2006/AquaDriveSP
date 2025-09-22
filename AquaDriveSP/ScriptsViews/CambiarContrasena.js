@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             Swal.fire({
                 icon: data.success ? "success" : "error",
-                title: data.success ? "¡Contraseña cambiada!" : "Error",
+                title: data.success ? "Contraseña cambiada" : "Error",
                 text: data.message,
                 confirmButtonColor: data.success ? "#3085d6" : "#d33"
             }).then(() => {

@@ -67,11 +67,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (e.target.closest(".btn-eliminar")) {
             Swal.fire({
-                title: "¿Eliminar servicio?",
-                text: "Esta acción no se puede deshacer.",
+                title: "Eliminar servicio",
+                text: "Esta accion no se puede deshacer.",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Sí, eliminar",
+                confirmButtonText: "Si, eliminar",
                 cancelButtonText: "Cancelar"
             }).then(result => {
                 if (result.isConfirmed) {
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(payload),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Éxito", data.message, "success");
+                        Swal.fire("Exito", data.message, "success");
                         const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                         modalInstance.hide();
                         form.reset();
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: JSON.stringify(payload),
                 success: function (data) {
                     if (data.success) {
-                        Swal.fire("Éxito", data.message, "success");
+                        Swal.fire("Exito", data.message, "success");
                         const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                         modalInstance.hide();
                         form.reset();

@@ -446,7 +446,7 @@ namespace AquaDriveSP.Controllers
                 db.tiposervicio.Add(nuevoServicio);
                 db.SaveChanges();
 
-                return Json(new { success = true, message = "Servicio creada con éxito" });
+                return Json(new { success = true, message = "Servicio creado con éxito" });
             }
             catch (Exception ex)
             {
