@@ -1,0 +1,146 @@
+﻿@{
+    ViewBag.Title = "Gestionar Servicio";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .servicio-container {
+            max-width: 1800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+        }
+
+            .servicio-container h2 {
+                text-align: center;
+                margin-bottom: 25px;
+            }
+
+        .table-servicio {
+            width: 100%;
+        }
+
+            .table-servicio th, .table-servicio td {
+                text-align: center;
+                vertical-align: middle;
+            }
+
+        .btn-blue {
+            background-color: #00cfff;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .btn-green {
+            background-color: #00ff55;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-red {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #form-servicio-modal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+            .input-row input {
+                padding: 8px;
+                border-radius: 10px;
+                border: 1px solid #ccc;
+                width: 180px;
+            }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+}
+<div class="servicio-container">
+    <h2>Gestión de Servicios</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-servicio align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Duración (min)</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botón Crear Servicio -->
+    <div class="text-center mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalServicio">
+            Crear Servicio
+        </button>
+    </div>
+
+    <!-- Modal Bootstrap -->
+    <div class="modal fade" id="modalServicio" tabindex="-1" aria-labelledby="modalServicioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalServicioLabel">Crear Servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-servicio-modal" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" id="nombre" class="form-control" required placeholder="Nombre">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="number" id="duracionminutos" class="form-control" required placeholder="Duración en minutos">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="number" step="0.01" id="precio" class="form-control" required placeholder="Precio">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="btn-add-servicio">AGREGAR</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/ScriptsViews/GestionarServicio.js"></script>
+}
