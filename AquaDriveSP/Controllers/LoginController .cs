@@ -73,7 +73,7 @@ namespace AquaDriveSP.Controllers
                         {
                             usuarioid = usuario.usuarioid,
                             sedeid = 0, // temporal, se puede actualizar
-                            estado = "Pendiente"
+                            estado = 0
                         });
                         mensaje = "Usuario registrado correctamente, espera aprobación.";
                         break;
@@ -82,8 +82,7 @@ namespace AquaDriveSP.Controllers
                         _db.usuario.Add(usuario);
                         _db.administrador.Add(new Administrador
                         {
-                            usuarioid = usuario.usuarioid,
-                            estado = "Aceptado"
+                            usuarioid = usuario.usuarioid
                         });
                         mensaje = "Usuario registrado correctamente.";
                         break;
@@ -137,7 +136,7 @@ namespace AquaDriveSP.Controllers
                     return Json(new
                     {
                         exito = true,
-                        mensaje = "Inicio de sesión exitoso (Cliente)",
+                        mensaje = "Inicio de sesión exitoso",
                         tipoCuenta = "cliente",
                         id = cliente.clienteid
                     });
@@ -147,7 +146,7 @@ namespace AquaDriveSP.Controllers
                 var empleado = _db.empleado.FirstOrDefault(e => e.usuarioid == usuario.usuarioid);
                 if (empleado != null)
                 {
-                    if (empleado.estado != "Aceptado")
+                    if (empleado.estado != 1)
                         return Json(new { exito = false, mensaje = "Empleado aún no aprobado por un administrador." });
 
                     rol = "Empleado";
@@ -168,9 +167,6 @@ namespace AquaDriveSP.Controllers
                 var admin = _db.administrador.FirstOrDefault(a => a.usuarioid == usuario.usuarioid);
                 if (admin != null)
                 {
-                    if (admin.estado != "Aceptado")
-                        return Json(new { exito = false, mensaje = "Administrador aún no aprobado por otro admin." });
-
                     rol = "Admin";
                     FormsAuthentication.SetAuthCookie(usuario.usuarioid.ToString(), false);
                     // Guardar rol en Session (opcional)
@@ -239,7 +235,7 @@ namespace AquaDriveSP.Controllers
         // ---------------------------
         private string GenerarContrasenaAleatoria(int longitud = 8)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
             var rnd = new Random();
             return new string(Enumerable.Repeat(chars, longitud)
                 .Select(s => s[rnd.Next(s.Length)]).ToArray());

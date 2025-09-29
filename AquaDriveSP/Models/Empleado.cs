@@ -15,7 +15,7 @@ namespace AquaDriveSP.Models
         public long usuarioid { get; set; }
         public long sedeid { get; set; }
         public DateTime? fechacontratacion { get; set; }
-        public string estado { get; set; } = "Pendiente";
+        public int estado { get; set; } = 0;
 
         public virtual Usuario usuario { get; set; }
         public virtual Sede sede { get; set; }

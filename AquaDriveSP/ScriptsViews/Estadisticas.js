@@ -55,37 +55,39 @@ document.addEventListener("DOMContentLoaded", function () {
         if (chart1) chart1.destroy();
 
         chart1 = new Chart(ctx, {
-            type: "bar",
+            type: "bar", // se mantiene bar
             data: {
                 labels: datos.map(x => x.Nombre),
                 datasets: [{
                     label: "Autos lavados",
                     data: datos.map(x => x.Cantidad),
-                    backgroundColor: "#00cfff"
+                    borderColor: "#007bff",
+                    backgroundColor: "rgba(0, 123, 255, 0.2)",
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false },
+                    legend: { display: true },
                     title: {
                         display: true,
-                        text: "Autos lavados por empleado"
+                        text: "Autos lavados por empleado",
+                        color: "#333",
+                        font: {
+                            size: 18,
+                            weight: "bold"
+                        },
+                        padding: { top: 10, bottom: 20 }
                     }
                 },
                 scales: {
                     x: {
-                        title: {
-                            display: true,
-                            text: "Empleados"
-                        }
+                        title: { display: true, text: "Empleados" }
                     },
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: "Cantidad de autos"
-                        }
+                        title: { display: true, text: "Cantidad de autos" }
                     }
                 }
             }
@@ -100,42 +102,39 @@ document.addEventListener("DOMContentLoaded", function () {
         if (chart2) chart2.destroy();
 
         chart2 = new Chart(ctx, {
-            type: "bar", 
+            type: "bar",
             data: {
                 labels: datos.map(x => x.nombre), // sedes
                 datasets: [{
                     label: "Servicios realizados",
-                    data: datos.map(x => x.Cantidad), // cantidad de servicios
-                    backgroundColor: [
-                        "#00cfff", "#0099cc", "#33cc33", "#ff9933",
-                        "#ff3333", "#9966cc", "#ff66b2"
-                    ]
+                    data: datos.map(x => x.Cantidad),
+                    borderColor: "#28a745",
+                    backgroundColor: "rgba(40, 167, 69, 0.2)",
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: {
-                        display: false //oculta la leyenda (no necesaria en barras)
-                    },
+                    legend: { display: true },
                     title: {
                         display: true,
-                        text: "Cantidad de servicios por sede"
+                        text: "Cantidad de servicios por sede",
+                        color: "#333",
+                        font: {
+                            size: 18,
+                            weight: "bold"
+                        },
+                        padding: { top: 10, bottom: 20 }
                     }
                 },
                 scales: {
                     x: {
-                        title: {
-                            display: true,
-                            text: "Sedes"
-                        }
+                        title: { display: true, text: "Sedes" }
                     },
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: "Número de servicios"
-                        }
+                        title: { display: true, text: "Número de servicios" }
                     }
                 }
             }

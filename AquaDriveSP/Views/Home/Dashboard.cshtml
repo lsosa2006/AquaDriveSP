@@ -1,9 +1,9 @@
-﻿@model AquaDriveSP.ViewModels.DashboardAdminViewModel
+﻿@model AquaDriveSP.ViewModels.DashboardViewModel
+
 
 @{
-    var rol = Session["Rol"] != null ? Session["Rol"].ToString() : "Invitado";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = $"Inicio {rol}";
+    ViewBag.Title = $"Inicio {Model.Rol}";
 }
 
 @section Styles {
@@ -75,31 +75,46 @@
 }
 
 <div class="container">
-    @if (rol == "Admin" && Model != null)
+    @if (Model.Rol == "Admin" && Model.AdminData != null)
     {
-        <div class="card card-left">
+        <div class="card card-left flex-fill">
             <h3>Top Empleados</h3>
-            <ul>
-                @foreach (var e in Model.TopEmpleados)
-                {
-                    <li>@e</li>
-                }
-            </ul>
+            @if (Model.AdminData.TopEmpleados.Any())
+            {
+                <ul>
+                    @foreach (var e in Model.AdminData.TopEmpleados)
+                    {
+                        <li>@e</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> ¡Sin registros!</p>
+            }
 
+            <!-- Lavados por sede -->
             <h3>Lavados hoy por sede</h3>
-            <ul>
-                @foreach (var s in Model.AutosPorSede)
-                {
-                    <li>@s.Key: @(s.Value) Lavados</li>
-                }
-            </ul>
+            @if (Model.AdminData.AutosPorSede.Any())
+            {
+                <ul>
+                    @foreach (var s in Model.AdminData.AutosPorSede)
+                    {
+                        <li>@s.Key: @(s.Value) Lavados</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> ¡Sin registros!</p>
+            }
         </div>
 
-        <div class="card card-right">
+        <div class="card card-right flex-fill">
             <h3>Estadísticas del día</h3>
             <ul>
-                <li>Autos lavados hoy: @(Model.AutosPorSede.Values.Sum())</li>
-                <li>Ingresos del día: $@(Model.IngresosHoy)</li>
+                <li>Autos lavados hoy: @(Model.AdminData.AutosPorSede.Values.Sum())</li>
+                <li>Ingresos del día: $@(Model.AdminData.IngresosHoy)</li>
             </ul>
 
             <div class="charts">
@@ -109,20 +124,52 @@
             </div>
         </div>
     }
-    else if (rol == "Empleado")
+    else if (Model.Rol == "Empleado" && Model.EmpleadoData != null)
     {
-        <div class="card">
-            <h3>Mis tareas</h3>
-            <ul>
-                @foreach (var t in ViewBag.MisTareas)
-                {
-                    <li>@t</li>
-                }
-            </ul>
-            <p>Horas de trabajo: @ViewBag.HorasTrabajo</p>
+        <div class="card card-left flex-fill">
+            <h3>Citas asignadas hoy</h3>
+            @if (Model.EmpleadoData.CitasAsignadasHoy.Any())
+            {
+                <ul>
+                    @foreach (var c in Model.EmpleadoData.CitasAsignadasHoy)
+                    {
+                        <li>
+                            <b>@c.Cliente</b> - @c.Vehiculo - @c.Servicio (@c.HoraInicio.ToString("HH:mm"))
+                        </li>
+                    }
+                </ul>
+                <a href="@Url.Action("CitasAsignadasEmpleado", "Empleado")" class="btn btn-primary mt-2">Ir a Mis Citas</a>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> ¡Sin registros!</p>
+            }
+
+            <h3 class="mt-4">Citas finalizadas hoy</h3>
+            @if (Model.EmpleadoData.CitasFinalizadasHoy.Any())
+            {
+                <ul>
+                    @foreach (var c in Model.EmpleadoData.CitasFinalizadasHoy)
+                    {
+                        <li>
+                            <b>@c.Cliente</b> - @c.Vehiculo - @c.Servicio (@c.HoraInicio.ToString("HH:mm") - @c.HoraFin?.ToString("HH:mm"))
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> ¡Sin registros!</p>
+            }
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="card card-right flex-fill">
+            <h3>Historial semanal</h3>
+            <canvas id="citasChart" height="250"></canvas>
         </div>
     }
-    else if (rol == "Cliente")
+    else if (Model.Rol == "Cliente" && Model.ClienteCitas != null)
     {
         <div class="card">
             <h3>Mis Citas</h3>
@@ -139,24 +186,30 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        @if (rol == "Admin" && Model != null)
+        @if (Model.Rol == "Admin" && Model.AdminData != null)
         {
             <text>
             var ctx = document.getElementById('ingresosChart').getContext('2d');
             var ingresosChart = new Chart(ctx, {
-                type: "bar",
+                type: "line", // igual que el de empleado
                 data: {
-                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.DiasUltimos7Dias)),
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AdminData.DiasUltimos7Dias)),
                     datasets: [{
                         label: "Ingresos",
-                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.IngresosUltimos7Dias)),
-                        backgroundColor: "#00cfff"
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AdminData.IngresosUltimos7Dias)),
+                        borderColor: "#00cfff",
+                        backgroundColor: "rgba(0, 207, 255, 0.2)", // mismo efecto relleno
+                        borderWidth: 2,
+                        tension: 0.3, // suaviza la línea
+                        fill: true,
+                        pointBackgroundColor: "#00cfff",
+                        pointRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: false },
+                        legend: { display: true },
                         title: {
                             display: true,
                             text: "Ingresos últimos 7 días",
@@ -170,11 +223,7 @@
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: "Días" },
-                            ticks: {
-                                maxRotation: 0, // Fuerza etiquetas horizontales
-                                minRotation: 0
-                            }
+                            title: { display: true, text: "Días" }
                         },
                         y: {
                             beginAtZero: true,
@@ -189,6 +238,58 @@
                 }
             });
             </text>
+        }
+        else if (Model.Rol == "Empleado" && Model.EmpleadoData != null)
+        {
+            <text>
+            var ctxEmpleado = document.getElementById('citasChart').getContext('2d');
+            var citasChart = new Chart(ctxEmpleado, {
+                type: "line", // puede ser "bar" si prefieres barras
+                data: {
+                    labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EmpleadoData.DiasUltimos7Dias)),
+                    datasets: [{
+                        label: "Citas finalizadas",
+                        data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EmpleadoData.CitasUltimos7Dias)),
+                        borderColor: "#007bff",
+                        backgroundColor: "rgba(0, 123, 255, 0.2)",
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: "#007bff",
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: {
+                            display: true,
+                            text: "Historial de citas (últimos 7 días)",
+                            color: "#333",
+                            font: {
+                                size: 18,
+                                weight: "bold"
+                            },
+                            padding: { top: 10, bottom: 20 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: "Días" }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: "Cantidad de citas" }
+                        }
+                    }
+                }
+            });
+            </text>
+        }
+        else if(Model.Rol == "Cliente" && Model.ClienteCitas != null)
+        {
+
         }
     </script>
 }

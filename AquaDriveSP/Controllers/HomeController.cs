@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using AquaDriveSP.Autentication;
 using AquaDriveSP.Models;
 using AquaDriveSP.ViewModels;
+using static AquaDriveSP.ViewModels.DashboardEmpleadoViewModel;
 
 
 namespace AquaDriveSP.Controllers
@@ -15,24 +16,29 @@ namespace AquaDriveSP.Controllers
     {
         private readonly AppDbContext db = new AppDbContext();
 
+
         public ActionResult Dashboard()
         {
             string rol = Session["Rol"]?.ToString() ?? "Invitado";
+            var vm = new DashboardViewModel
+            {
+                Rol = rol
+            };
 
             if (rol == "Admin")
             {
-                var vm = new DashboardAdminViewModel();
+                var adminVm = new DashboardAdminViewModel();
                 var hoyInicio = DateTime.Today;
                 var hoyFin = hoyInicio.AddDays(1).AddTicks(-1);
                 // ---------------------------
                 // 1. Autos lavados por sede (citas finalizadas)
                 // ---------------------------
-                vm.AutosPorSede = db.sede
+                adminVm.AutosPorSede = db.sede
                     .Where(s => s.sedeid != 0)
                     .Select(s => new
                     {
                         s.nombre,
-                        Cantidad = s.citas.Count(c => c.estado == "Finalizada"
+                        Cantidad = s.citas.Count(c => c.estado == 3
                                                       && c.fechahorafin >= hoyInicio
                                                       && c.fechahorafin <= hoyFin)
                     })
@@ -41,7 +47,7 @@ namespace AquaDriveSP.Controllers
                 // ---------------------------
                 // 2. Top 3 empleados mejor calificados (promedio de resenas)
                 // ---------------------------
-                vm.TopEmpleados = db.empleado
+                adminVm.TopEmpleados = db.empleado
                     .Select(e => new
                     {
                         NombreCompleto = e.usuario.nombre + " " + e.usuario.apellido,
@@ -57,8 +63,8 @@ namespace AquaDriveSP.Controllers
 
 
                 // Inicializamos listas
-                vm.DiasUltimos7Dias = new List<string>();
-                vm.IngresosUltimos7Dias = new List<decimal>();
+                adminVm.DiasUltimos7Dias = new List<string>();
+                adminVm.IngresosUltimos7Dias = new List<decimal>();
 
                 // Fecha de hoy
                 var hoy = DateTime.Today;
@@ -71,7 +77,7 @@ namespace AquaDriveSP.Controllers
 
                     // Traemos las citas finalizadas del día a memoria, puede estar vacío
                     var citasDelDia = db.cita
-                        .Where(c => c.estado == "Finalizada"
+                        .Where(c => c.estado == 3
                                     && c.fechahorafin >= diaInicio
                                     && c.fechahorafin <= diaFin)
                         .ToList();
@@ -91,14 +97,14 @@ namespace AquaDriveSP.Controllers
                             .Sum();
                     }
 
-                    vm.DiasUltimos7Dias.Add(diaInicio.ToString("dddd")); // Lunes, Martes...
-                    vm.IngresosUltimos7Dias.Add(ingresosDia);
+                    adminVm.DiasUltimos7Dias.Add(diaInicio.ToString("dddd")); // Lunes, Martes...
+                    adminVm.IngresosUltimos7Dias.Add(ingresosDia);
                 }
 
                 // Ingresos hoy: última posición de la lista, seguro incluso si está vacía
-                vm.IngresosHoy = vm.IngresosUltimos7Dias.Any() ? vm.IngresosUltimos7Dias.Last() : 0;
+                adminVm.IngresosHoy = adminVm.IngresosUltimos7Dias.Any() ? adminVm.IngresosUltimos7Dias.Last() : 0;
 
-                return View(vm);
+                vm.AdminData = adminVm;
             }
 
             // ---------------------------
@@ -106,8 +112,61 @@ namespace AquaDriveSP.Controllers
             // ---------------------------
             if (rol == "Empleado")
             {
-                ViewBag.MisTareas = new List<string> { "Lavar auto 1", "Lavar auto 2" };
-                ViewBag.HorasTrabajo = 8;
+                var empleadoVm = new DashboardEmpleadoViewModel();
+                var empleadoId = (long)Session["UsuarioId"]; // 🔹 guardado en sesión al iniciar sesión
+                var hoyInicio = DateTime.Today;
+                var hoyFin = hoyInicio.AddDays(1).AddTicks(-1);
+
+                // 3 citas más recientes asignadas hoy
+                empleadoVm.CitasAsignadasHoy = db.cita
+                    .Where(c => c.empleadoid == empleadoId && c.estado == 1 && c.fechahorainicio >= hoyInicio && c.fechahorainicio <= hoyFin)
+                    .OrderBy(c => c.fechahorainicio)
+                    .Take(3)
+                    .Select(c => new CitaCard
+                    {
+                        Cliente = c.cliente.usuario.nombre + " " + c.cliente.usuario.apellido,
+                        Vehiculo = c.vehiculo.placa,
+                        Servicio = c.tiposervicio.nombre,
+                        HoraInicio = c.fechahorainicio,
+                        HoraFin = c.fechahorafin
+                    })
+                    .ToList();
+
+                // Citas finalizadas hoy
+                empleadoVm.CitasFinalizadasHoy = db.cita
+                    .Where(c => c.empleadoid == empleadoId && c.estado == 3 && c.fechahorafin >= hoyInicio && c.fechahorafin <= hoyFin)
+                    .OrderBy(c => c.fechahorainicio)
+                    .Select(c => new CitaCard
+                    {
+                        Cliente = c.cliente.usuario.nombre + " " + c.cliente.usuario.apellido,
+                        Vehiculo = c.vehiculo.placa,
+                        Servicio = c.tiposervicio.nombre,
+                        HoraInicio = c.fechahorainicio,
+                        HoraFin = c.fechahorafin
+                    })
+                    .ToList();
+
+                // Historial últimos 7 días (citas finalizadas por día)
+                empleadoVm.DiasUltimos7Dias = new List<string>();
+                empleadoVm.CitasUltimos7Dias = new List<int>();
+
+                var hoy = DateTime.Today;
+                for (int i = 6; i >= 0; i--)
+                {
+                    var dia = hoy.AddDays(-i);
+                    var diaInicio = dia.Date;
+                    var diaFin = diaInicio.AddDays(1).AddTicks(-1);
+
+                    int totalCitas = db.cita.Count(c => c.empleadoid == empleadoId
+                                                       && c.estado == 3
+                                                       && c.fechahorafin >= diaInicio
+                                                       && c.fechahorafin <= diaFin);
+
+                    empleadoVm.DiasUltimos7Dias.Add(dia.ToString("dddd"));
+                    empleadoVm.CitasUltimos7Dias.Add(totalCitas);
+                }
+
+                vm.EmpleadoData = empleadoVm;
             }
             else if (rol == "Cliente")
             {
@@ -115,7 +174,7 @@ namespace AquaDriveSP.Controllers
             }
 
             ViewBag.Rol = rol;
-            return View();
+            return View(vm);
         }
     }
 }

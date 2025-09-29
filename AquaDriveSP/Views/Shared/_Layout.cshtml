@@ -176,7 +176,23 @@
                     </li>
                     <li><a href="@Url.Action("Estadisticas", "Admin")">Estadísticas</a></li>
                 }
+                @if (rol == "Empleado")
+                {
+                    <li><a href="@Url.Action("GestionarCitas", "Empleado")">Gestionar Citas</a></li>
+                    <li><a href="@Url.Action("Horario", "Empleado")">Horario</a></li>
+                    <li><a href="@Url.Action("HistorialCitas", "Empleado")">Historial de citas</a></li>
+                    <li class="dropdown">
+                        <a href="#">Estadísticas ▾</a>
+                        <ul class="submenu">
+                            <li><a href="@Url.Action("EstadisticasDesempeno", "Empleado")">Estadísticas desempeño</a></li>
+                            <li><a href="@Url.Action("Resenas", "Empleado")">Reseñas</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (rol == "Cliente")
+                {
 
+                }
                 <li class="dropdown">
                     <a href="#">Configuración ▾</a>
                     <ul class="submenu">
@@ -194,6 +210,18 @@
     <main class="main-content">
         <div class="container">
             @RenderBody()
+            <!-- Modal con Spinner -->
+            <div class="modal fade" id="spinnerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="background: transparent; border: none; box-shadow: none;">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 150px;">
+                            <div class="spinner-border text-info" role="status" style="width: 4rem; height: 4rem;">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -205,6 +233,9 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.js"></script>
+
 
     @RenderSection("Scripts", required: false)
 

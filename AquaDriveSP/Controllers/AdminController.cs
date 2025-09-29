@@ -285,7 +285,7 @@ namespace AquaDriveSP.Controllers
                     {
                         Nombre = emp.usuario.nombre + " " + emp.usuario.apellido,
                         Cantidad = emp.citas
-                            .Count(c => c.estado == "Finalizada" &&
+                            .Count(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
                                         c.fechahorafin <= fechaFin)
                     })
@@ -300,7 +300,7 @@ namespace AquaDriveSP.Controllers
                     {
                         s.nombre,
                         Cantidad = s.citas
-                            .Count(c => c.estado == "Finalizada" &&
+                            .Count(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
                                         c.fechahorafin <= fechaFin)
                     })
@@ -316,11 +316,11 @@ namespace AquaDriveSP.Controllers
                         ts.nombre,
                         Precio = ts.precio,
                         Cantidad = ts.citas
-                            .Count(c => c.estado == "Finalizada" &&
+                            .Count(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
                                         c.fechahorafin <= fechaFin),
                         Total = ts.citas
-                            .Where(c => c.estado == "Finalizada" &&
+                            .Where(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
                                         c.fechahorafin <= fechaFin)
                             .Select(c => (decimal?)c.tiposervicio.precio)

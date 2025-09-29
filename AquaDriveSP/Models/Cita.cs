@@ -16,10 +16,11 @@ namespace AquaDriveSP.Models
         public long? empleadoid { get; set; }
         public long tiposervicioid { get; set; }
         public long sedeid { get; set; }
+        public string placa { get; set; }
 
         public DateTime fechahorainicio { get; set; }
-        public DateTime fechahorafin { get; set; }
-        public string estado { get; set; } = "Pendiente";
+        public DateTime? fechahorafin { get; set; }
+        public int estado { get; set; } = 1;
         public string observaciones { get; set; }
         public DateTime createdat { get; set; }
 
@@ -27,6 +28,7 @@ namespace AquaDriveSP.Models
         public virtual Empleado empleado { get; set; }
         public virtual TipoServicio tiposervicio { get; set; }
         public virtual Sede sede { get; set; }
+        public virtual Vehiculo vehiculo { get; set; }
         public virtual ICollection<Resena> resenas { get; set; }
 
         public Cita()

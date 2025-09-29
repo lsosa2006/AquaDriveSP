@@ -73,6 +73,10 @@ namespace AquaDriveSP.Models
                 .HasRequired(c => c.sede)
                 .WithMany(s => s.citas)
                 .HasForeignKey(c => c.sedeid);
+            modelBuilder.Entity<Cita>()
+                .HasRequired(c => c.vehiculo)
+                .WithMany() // no es necesario mapear la colección inversa
+                .HasForeignKey(c => c.placa);
 
             // --------------------
             // Resena -> Cita / Empleado / Cliente

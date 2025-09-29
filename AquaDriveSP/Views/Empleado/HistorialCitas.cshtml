@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Historial de Citas Finalizadas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var citas = ViewBag.CitasFinalizadas as List<dynamic> ?? new List<dynamic>();
+}
+
+@section Styles {
+    <style>
+        .empleado-container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 30px; /* mismo padding que dashboard */
+            background: #e6f7ff; /* azul exacto del dashboard */
+            border-radius: 15px; /* igual que dashboard */
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3); /* misma sombra */
+            display: flex;
+            flex-direction: column; /* como las cards del dashboard */
+            gap: 20px; /* espacio interno entre elementos */
+        }
+
+            .empleado-container h2 {
+                text-align: center;
+                margin-bottom: 25px;
+            }
+
+        .cita-card {
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+            .cita-card:hover {
+                transform: scale(1.02);
+            }
+
+        .cita-header {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #00cfff;
+        }
+
+        .star-rating i {
+            color: gold;
+            font-size: 1.2rem;
+        }
+
+        .list-empty {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #555;
+            margin-top: 30px;
+        }
+
+            .list-empty i {
+                color: #ff6b6b;
+                margin-right: 8px;
+            }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 30px;
+        }
+    </style>
+}
+
+<div class="empleado-container">
+    <h2>Historial de Citas Finalizadas</h2>
+
+    <div class="mb-3 d-flex justify-content-start">
+        <input class="form-control w-25 search" type="search" placeholder="Buscar..." />
+    </div>
+
+    <div id="citasList">
+        @if (citas.Count == 0)
+        {
+            <div class="row list">
+                @foreach (var cita in citas)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card cita-card">
+                            <div class="card-body">
+                                <div class="cita-header cliente">@cita.Cliente</div>
+                                <p class="placa"><strong>Placa:</strong> @cita.Placa</p>
+                                <p class="horainicio"><strong>Hora inicio:</strong> @cita.HoraInicio</p>
+                                <p class="horafin"><strong>Hora fin:</strong> @cita.HoraFin</p>
+                                <p class="servicio"><strong>Servicio:</strong> @cita.Servicio</p>
+                                <div class="star-rating">
+                                    @{
+                                        int fullStars = (int)Math.Floor(cita.Puntuacion);
+                                        int emptyStars = 5 - fullStars;
+                                    }
+                                    @for (int i = 0; i < fullStars; i++)
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+                                    @for (int i = 0; i < emptyStars; i++)
+                                    {
+                                        <i class="bi bi-star"></i>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-md-4 mb-4">
+                    <div class="card cita-card">
+                        <div class="card-body">
+                            <!-- Nombre del cliente -->
+                            <div class="cita-header cliente">Juan Pérez</div>
+
+                            <!-- Placa del vehículo -->
+                            <p class="placa"><strong>Placa:</strong> ABC-123</p>
+
+                            <!-- Hora de inicio -->
+                            <p class="horainicio"><strong>Hora inicio:</strong> 09:00</p>
+
+                            <!-- Hora de fin -->
+                            <p class="horafin"><strong>Hora fin:</strong> 09:45</p>
+
+                            <!-- Servicio -->
+                            <p class="servicio"><strong>Servicio:</strong> Lavado Premium</p>
+
+                            <!-- Puntuación en estrellas -->
+                            <div class="star-rating">
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul class="pagination listjs-pagination"></ul>
+        }
+        else
+        {
+            <div class="list-empty">
+                <i class="bi bi-exclamation-triangle-fill"></i> No hay registros de citas finalizadas.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var citas = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(citas));
+        if (citas.length > 0) {
+            var options = {
+                valueNames: ['cliente', 'placa', 'horainicio', 'horafin', 'servicio'],
+                page: 5,
+                pagination: true
+            };
+            var citasList = new List('citasList', options);
+        }
+    </script>
+}

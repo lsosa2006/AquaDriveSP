@@ -11,8 +11,6 @@ namespace AquaDriveSP.Models
         public long administradorid { get; set; }
         public long usuarioid { get; set; }
 
-        public string estado { get; set; } = "Pendiente";
-
         public virtual Usuario usuario { get; set; }
     }
 }

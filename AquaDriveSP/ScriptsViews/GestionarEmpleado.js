@@ -135,10 +135,10 @@
             const id = parseInt(tr.dataset.id);
             const sedeid = parseInt(tr.querySelector("select").value);
             const fecha = tr.querySelector("input[type='date']").value;
-            const estado = tr.querySelector("input[type='checkbox']").checked ? "Aceptado" : "Pendiente";
+            const estado = tr.querySelector("input[type='checkbox']").checked ? 1 : 0;
             c = c + 1;
             // Validación básica
-            if (estado === "Aceptado" && (isNaN(sedeid) || sedeid === 0)) {
+            if (estado === 1 && (isNaN(sedeid) || sedeid === 0)) {
                 valido = false;
                 return;
             }
@@ -166,6 +166,7 @@
                 if (data.success) {
                     Swal.fire("Éxito", data.message, "success").then(() => {
                         spinnerModal.hide();
+                        cargarSedes();
                         cargarEmpleados();
                     });
                 } else {
@@ -215,6 +216,7 @@
                             if (data.success) {
                                 Swal.fire("Eliminado", "Empleado eliminado.", "success").then(() => {
                                     spinnerModal.hide();
+                                    cargarSedes();
                                     cargarEmpleados();
                                 });
                             } else {
@@ -318,9 +320,8 @@
                 estado: activo
             });
         });
-        spinnerModal.show();
-        
         if (!valido) return; 
+        spinnerModal.show();
         $.ajax({
             url: "/Admin/SaveHorario",
             method: "POST",

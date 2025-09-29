@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Citas Asignadas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .empleado-container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 30px; /* mismo padding que dashboard */
+            background: #e6f7ff; /* azul exacto del dashboard */
+            border-radius: 15px; /* igual que dashboard */
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3); /* misma sombra */
+            display: flex;
+            flex-direction: column; /* como las cards del dashboard */
+            gap: 20px; /* espacio interno entre elementos */
+        }
+
+            .empleado-container h2 {
+                text-align: center;
+                margin-bottom: 25px;
+            }
+
+        .table-responsive {
+            max-height: 700px;
+            overflow-y: auto;
+        }
+
+        .btn-manage {
+            background-color: #00cfff;
+            color: white;
+            border: none;
+        }
+
+            .btn-manage:hover {
+                background-color: #00b5e6;
+                color: white;
+            }
+    </style>
+}
+
+<div class="empleado-container">
+    <h2>Citas Asignadas del Día</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Vehículo</th>
+                    <th>Servicio</th>
+                    <th>Sede</th>
+                    <th>Hora Inicio</th>
+                    <th>Hora Fin</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Ejemplo de fila -->
+                <tr>
+                    <td>Juan Pérez</td>
+                    <td>ABC-123</td>
+                    <td>Lavado Premium</td>
+                    <td>Sede Centro</td>
+                    <td>09:00</td>
+                    <td>09:45</td>
+                    <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                    <td class="text-center">
+                        <button class="btn btn-manage btn-sm" data-bs-toggle="modal" data-bs-target="#modalGestionar">
+                            <i class="bi bi-gear-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Gestionar Cita -->
+<div class="modal fade" id="modalGestionar" tabindex="-1" aria-labelledby="modalGestionarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalGestionarLabel">Gestionar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Mini tabla con datos -->
+                <table class="table table-sm table-bordered text-center mb-3">
+                    <tr>
+                        <th>Placa</th>
+                        <th>Hora Inicio</th>
+                        <th>Servicio</th>
+                    </tr>
+                    <tr>
+                        <td>ABC-123</td>
+                        <td>09:00</td>
+                        <td>Lavado Premium</td>
+                    </tr>
+                </table>
+
+                <!-- Botones de acción -->
+                <div class="d-flex justify-content-around">
+                    <button class="btn btn-success">
+                        <i class="bi bi-play-circle"></i> Iniciar
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Finalizar
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/ScriptsViews/GestionarCitas.js"></script>
+}
