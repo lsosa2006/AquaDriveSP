@@ -2,7 +2,7 @@
     ViewBag.Title = "Historial de Citas Finalizadas";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var citas = ViewBag.CitasFinalizadas as List<dynamic> ?? new List<dynamic>();
+    @model List<AquaDriveSP.ViewModels.CitaViewModelEmpleado>
 }
 
 @section Styles {
@@ -57,9 +57,61 @@
                 margin-right: 8px;
             }
 
+        /* Contenedor de paginación */
         .pagination {
+            display: flex;
             justify-content: center;
+            gap: 8px;
             margin-top: 30px;
+            list-style: none;
+            padding: 0;
+        }
+
+            /* Botones de paginación */
+            .pagination li {
+                background-color: #ffffff; /* fondo blanco */
+                color: #00cfff; /* número azul claro */
+                border-radius: 8px;
+                padding: 8px 16px; /* tamaño de botón */
+                cursor: pointer;
+                font-weight: bold;
+                text-align: center;
+                user-select: none;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            }
+
+                /* Hover sobre los botones */
+                .pagination li:hover {
+                    transform: translateY(-2px) scale(1.05);
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+                }
+
+                /* Botón activo */
+                .pagination li.active {
+                    transform: scale(1.1); /* botón un poco más grande */
+                    color: #007b8f; /* número azul más oscuro */
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                }
+
+                /* Asegurar que los links internos ocupen todo el recuadro */
+                .pagination li a {
+                    display: inline-flex;
+                    width: 100%;
+                    height: 100%;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    color: inherit; /* hereda color del li */
+                }
+
+        /* Input de búsqueda */
+        .search {
+            border-radius: 10px;
+            border: 1px solid #00cfff;
         }
     </style>
 }
@@ -72,18 +124,17 @@
     </div>
 
     <div id="citasList">
-        @if (citas.Count == 0)
+        @if (Model.Count > 0)
         {
             <div class="row list">
-                @foreach (var cita in citas)
+                @foreach (var cita in Model)
                 {
                     <div class="col-md-4 mb-4">
                         <div class="card cita-card">
                             <div class="card-body">
                                 <div class="cita-header cliente">@cita.Cliente</div>
                                 <p class="placa"><strong>Placa:</strong> @cita.Placa</p>
-                                <p class="horainicio"><strong>Hora inicio:</strong> @cita.HoraInicio</p>
-                                <p class="horafin"><strong>Hora fin:</strong> @cita.HoraFin</p>
+                                <p class="horainicio"><strong>Fecha:</strong> @cita.HoraInicio - @cita.HoraFin</p>
                                 <p class="servicio"><strong>Servicio:</strong> @cita.Servicio</p>
                                 <div class="star-rating">
                                     @{
@@ -103,35 +154,6 @@
                         </div>
                     </div>
                 }
-                <div class="col-md-4 mb-4">
-                    <div class="card cita-card">
-                        <div class="card-body">
-                            <!-- Nombre del cliente -->
-                            <div class="cita-header cliente">Juan Pérez</div>
-
-                            <!-- Placa del vehículo -->
-                            <p class="placa"><strong>Placa:</strong> ABC-123</p>
-
-                            <!-- Hora de inicio -->
-                            <p class="horainicio"><strong>Hora inicio:</strong> 09:00</p>
-
-                            <!-- Hora de fin -->
-                            <p class="horafin"><strong>Hora fin:</strong> 09:45</p>
-
-                            <!-- Servicio -->
-                            <p class="servicio"><strong>Servicio:</strong> Lavado Premium</p>
-
-                            <!-- Puntuación en estrellas -->
-                            <div class="star-rating">
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star"></i>
-                                <i class="bi bi-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <ul class="pagination listjs-pagination"></ul>
         }
@@ -146,14 +168,19 @@
 
 @section Scripts {
     <script>
-        var citas = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(citas));
+        var citas = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
         if (citas.length > 0) {
             var options = {
                 valueNames: ['cliente', 'placa', 'horainicio', 'horafin', 'servicio'],
-                page: 5,
+                page: 6,
                 pagination: true
             };
             var citasList = new List('citasList', options);
+
+            var searchInput = document.querySelector('.search');
+            searchInput.addEventListener('input', function () {
+                citasList.search(searchInput.value);
+            });
         }
     </script>
 }

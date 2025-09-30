@@ -296,6 +296,7 @@ namespace AquaDriveSP.Controllers
                 // Gráfico 2: servicios por sede
                 // -------------------
                 var serviciosPorSede = db.sede
+                    .Where(s => s.sedeid != 0)
                     .Select(s => new
                     {
                         s.nombre,
@@ -356,6 +357,7 @@ namespace AquaDriveSP.Controllers
             try
             {
                 var sedes = db.sede
+                    .Where(s => s.sedeid != 0)
                     .Select(s => new
                     {
                         s.sedeid,

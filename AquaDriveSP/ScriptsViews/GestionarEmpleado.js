@@ -99,7 +99,7 @@
             </td>
             <td>
                 <label class="switch">
-                    <input type="checkbox" ${emp.estado === "Aceptado" ? "checked" : ""}>
+                    <input type="checkbox" ${emp.estado === 1 ? "checked" : ""}>
                     <span class="slider"></span>
                 </label>
             </td>

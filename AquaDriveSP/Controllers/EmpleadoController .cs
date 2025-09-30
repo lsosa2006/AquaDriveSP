@@ -7,6 +7,7 @@ using System.Web.Security;
 using System.Web.Services.Description;
 using AquaDriveSP.Autentication;
 using AquaDriveSP.Models;
+using AquaDriveSP.ViewModels;
 
 namespace AquaDriveSP.Controllers
 {
@@ -23,20 +24,26 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
-                var citasFinalizadas = db.cita
-                    .Where(c => c.estado == 3) // solo finalizadas
-                    .Select(c => new
+                var empleadoId = (long)Session["UsuarioId"];
+
+                // Traemos las citas a memoria primero
+                var citasFinalizadasDb = db.cita
+                    .Where(c => c.empleado.usuario.usuarioid == empleadoId && c.estado == 3)
+                    .ToList(); // <-- traemos los datos a memoria
+
+                // Formateamos fechas y calculamos promedios en memoria
+                var citasFinalizadas = citasFinalizadasDb
+                    .Select(c => new CitaViewModelEmpleado
                     {
                         Cliente = c.cliente.usuario.nombre,
                         Placa = c.vehiculo != null ? c.vehiculo.placa : "N/A",
-                        HoraInicio = c.fechahorainicio.ToString("HH:mm"),
+                        HoraInicio = c.fechahorainicio.ToString("dd/MM/yyyy HH:mm"),
                         HoraFin = c.fechahorafin.HasValue ? c.fechahorafin.Value.ToString("HH:mm") : "--",
                         Servicio = c.tiposervicio != null ? c.tiposervicio.nombre : "N/A",
                         Puntuacion = c.resenas.Any() ? c.resenas.Average(r => r.puntuacion) : 0
                     }).ToList();
 
-                ViewBag.CitasFinalizadas = citasFinalizadas;
-                return View();
+                return View(citasFinalizadas);
             }
             catch (Exception ex)
             {
@@ -62,7 +69,7 @@ namespace AquaDriveSP.Controllers
                     .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
                                 c.fechahorainicio >= inicioDia &&
                                 c.fechahorainicio < finDia &&
-                                c.estado != 3)
+                                c.estado != 3 && c.estado != 0)
                     .ToList();
 
                 // Luego proyectamos los datos y formateamos las fechas/hours en memoria
@@ -91,27 +98,26 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
-                var empleadoId = (long)Session["UsuarioId"];
+                // Traemos la cita a memoria primero
+                var citaDb = db.cita
+                    .Where(c => c.citaid == citaId)
+                    .FirstOrDefault();
 
-                // Traemos primero la cita específica
-                var cita = db.cita
-                    .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
-                                c.citaid == citaId).FirstOrDefault();
-                    //.Select(c => new
-                    //{
-                    //    c.citaid,
-                    //    cliente = c.cliente.usuario.nombre,
-                    //    vehiculo = c.vehiculo != null ? c.vehiculo.placa : "N/A",
-                    //    servicio = c.tiposervicio != null ? c.tiposervicio.nombre : "N/A",
-                    //    sede = c.sede != null ? c.sede.nombre : "N/A",
-                    //    horainicio = c.fechahorainicio.ToString("HH:mm"),
-                    //    horafin = c.fechahorafin.HasValue ? c.fechahorafin.Value.ToString("HH:mm") : "--",
-                    //    estado = c.estado
-                    //})
-                    //.FirstOrDefault(); // <-- Retorna un solo objeto o null si no existe
-
-                if (cita == null)
+                if (citaDb == null)
                     return Json(new { success = false, message = "Cita no encontrada" }, JsonRequestBehavior.AllowGet);
+
+                // Formateamos los datos en memoria
+                var cita = new
+                {
+                    citaDb.citaid,
+                    cliente = citaDb.cliente.usuario.nombre,
+                    vehiculo = citaDb.vehiculo != null ? citaDb.vehiculo.placa : "N/A",
+                    servicio = citaDb.tiposervicio != null ? citaDb.tiposervicio.nombre : "N/A",
+                    sede = citaDb.sede != null ? citaDb.sede.nombre : "N/A",
+                    horainicio = citaDb.fechahorainicio.ToString("HH:mm"),
+                    horafin = citaDb.fechahorafin.HasValue ? citaDb.fechahorafin.Value.ToString("HH:mm") : "--",
+                    estado = citaDb.estado
+                };
 
                 return Json(new { success = true, cita }, JsonRequestBehavior.AllowGet);
             }
@@ -121,10 +127,9 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-
         // Cambiar estado de una cita
         [HttpPost]
-        public JsonResult CambiarEstadoCita(long citaId, int nuevoEstado)
+        public JsonResult CambiarEstadoCita(long citaId, int estado)
         {
             try
             {
@@ -132,16 +137,30 @@ namespace AquaDriveSP.Controllers
                 if (cita == null)
                     return Json(new { success = false, message = "Cita no encontrada." });
 
-                cita.estado = nuevoEstado;
+                cita.estado = estado;
+                string message = "";
 
-                if (nuevoEstado == 2) // En curso
+                if (estado == 2)
+                {
+                    // En curso
                     cita.fechahorainicio = DateTime.Now;
+                    message = "Cita iniciada";
+                }
 
-                if (nuevoEstado == 3) // Finalizada
+                if (estado == 3) 
+                {
+                    // Finalizada
                     cita.fechahorafin = DateTime.Now;
+                    message = "Cita finalizada";
+                }
+
+                if (estado == 0)
+                {
+                    message = "Cita cancelada";
+                }
 
                 db.SaveChanges();
-                return Json(new { success = true, message = "Estado actualizado con éxito." });
+                return Json(new { success = true, message = message });
             }
             catch (Exception ex)
             {

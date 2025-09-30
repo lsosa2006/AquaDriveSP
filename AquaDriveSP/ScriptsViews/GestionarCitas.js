@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     ${renderEstado(c.estado)}
                 </td>
                 <td class="text-center">
-                    <button class="btn btn-manage btn-sm btn-gestionar" title="Gestionar" data-bs-toggle="modal" data-bs-target="#modalGestionar">
+                    <button class="btn btn-manage btn-sm btn-gestionar" title="Gestionar">
                         <i class="bi bi-gear-fill"></i>
                     </button>
                 </td>
@@ -105,6 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     const c = data.cita;
                     const modalBody = document.querySelector("#modalGestionar .modal-body");
+                    const modal = new bootstrap.Modal(document.getElementById("modalGestionar"));
 
                     modalBody.innerHTML = `
                     <table class="table table-sm table-bordered text-center mb-3">
@@ -125,6 +126,24 @@ document.addEventListener("DOMContentLoaded", function () {
                         <button class="btn btn-danger btn-cancelar"><i class="bi bi-x-circle"></i> Cancelar</button>
                     </div>
                 `;
+
+                    // Obtener los botones
+                    const btnIniciar = modalBody.querySelector(".btn-iniciar");
+                    const btnFinalizar = modalBody.querySelector(".btn-finalizar");
+
+                    // Deshabilitar según estado
+                    if (c.estado === 1) { // pendiente
+                        btnFinalizar.disabled = true;
+                        btnIniciar.disabled = false;
+                    } else if (c.estado === 2) { // en curso
+                        btnIniciar.disabled = true;
+                        btnFinalizar.disabled = false;
+                    } else {
+                        // estado 0 u otros
+                        btnIniciar.disabled = false;
+                        btnFinalizar.disabled = false;
+                    }
+                    modal.show();
                 } else {
                     Swal.fire("Error", data.message, "error");
                 }
@@ -154,7 +173,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // --- Cancelar ---
         if (e.target.closest(".btn-cancelar")) {
-            cambiarEstadoCita(0);
+            Swal.fire({
+                title: "¿Está seguro?",
+                text: "Esta acción cancelará la cita. No se puede deshacer.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sí, cancelar",
+                cancelButtonText: "No",
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    cambiarEstadoCita(0);
+                }
+            });
         }
     });
 
@@ -162,26 +197,29 @@ document.addEventListener("DOMContentLoaded", function () {
     // 6. Cambiar estado de la cita
     // ---------------------------
     function cambiarEstadoCita(nuevoEstado) {
-        spinnerModal.show();
         $.ajax({
             url: "/Empleado/CambiarEstadoCita",
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify({ citaId: citaIdGestion, estado: nuevoEstado }),
             success: function (data) {
-                spinnerModal.hide();
+                spinnerModal.show();
                 if (data.success) {
                     Swal.fire("Éxito", data.message, "success").then(() => {
+                        spinnerModal.hide();
                         bootstrap.Modal.getInstance(document.getElementById("modalGestionar")).hide();
                         cargarCitas();
                     });
                 } else {
-                    Swal.fire("Error", data.message, "error");
+                    Swal.fire("Error", data.message, "error").then(() => {
+                        spinnerModal.hide();
+                    });
                 }
             },
             error: function () {
-                spinnerModal.hide();
-                Swal.fire("Error", "No se pudo cambiar el estado de la cita.", "error");
+                Swal.fire("Error", "No se pudo cambiar el estado de la cita.", "error").then(() => {
+                    spinnerModal.hide();
+                });
             }
         });
     }
