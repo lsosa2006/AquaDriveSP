@@ -119,7 +119,7 @@ namespace AquaDriveSP.Controllers
 
                 // 3 citas más recientes asignadas hoy
                 empleadoVm.CitasAsignadasHoy = db.cita
-                    .Where(c => c.empleadoid == empleadoId && c.estado == 1 && c.fechahorainicio >= hoyInicio && c.fechahorainicio <= hoyFin)
+                    .Where(c => c.empleado.usuarioid == empleadoId && c.estado == 1 && c.fechahorainicio >= hoyInicio && c.fechahorainicio <= hoyFin)
                     .OrderBy(c => c.fechahorainicio)
                     .Take(3)
                     .Select(c => new CitaCard
@@ -134,7 +134,7 @@ namespace AquaDriveSP.Controllers
 
                 // Citas finalizadas hoy
                 empleadoVm.CitasFinalizadasHoy = db.cita
-                    .Where(c => c.empleadoid == empleadoId && c.estado == 3 && c.fechahorafin >= hoyInicio && c.fechahorafin <= hoyFin)
+                    .Where(c => c.empleado.usuarioid == empleadoId && c.estado == 3 && c.fechahorafin >= hoyInicio && c.fechahorafin <= hoyFin)
                     .OrderBy(c => c.fechahorainicio)
                     .Select(c => new CitaCard
                     {
@@ -157,7 +157,7 @@ namespace AquaDriveSP.Controllers
                     var diaInicio = dia.Date;
                     var diaFin = diaInicio.AddDays(1).AddTicks(-1);
 
-                    int totalCitas = db.cita.Count(c => c.empleadoid == empleadoId
+                    int totalCitas = db.cita.Count(c => c.empleado.usuarioid == empleadoId
                                                        && c.estado == 3
                                                        && c.fechahorafin >= diaInicio
                                                        && c.fechahorafin <= diaFin);

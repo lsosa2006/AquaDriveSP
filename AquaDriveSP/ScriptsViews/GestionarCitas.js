@@ -98,32 +98,33 @@ document.addEventListener("DOMContentLoaded", function () {
     // ---------------------------
     function cargarDetalleCita(citaId) {
         $.ajax({
-            url: `/Empleado/GetDetalleCita?citaId=${citaId}`,
+            url: `/Empleado/GetDetalleCita`, // URL base del controlador
             method: "GET",
+            data: { citaId: citaId },        // Pasamos citaId como parámetro
             success: function (data) {
                 if (data.success) {
                     const c = data.cita;
                     const modalBody = document.querySelector("#modalGestionar .modal-body");
 
                     modalBody.innerHTML = `
-                        <table class="table table-sm table-bordered text-center mb-3">
-                            <tr>
-                                <th>Placa</th>
-                                <th>Hora Inicio</th>
-                                <th>Servicio</th>
-                            </tr>
-                            <tr>
-                                <td>${c.vehiculo}</td>
-                                <td>${c.horainicio}</td>
-                                <td>${c.servicio}</td>
-                            </tr>
-                        </table>
-                        <div class="d-flex justify-content-around">
-                            <button class="btn btn-success btn-iniciar"><i class="bi bi-play-circle"></i> Iniciar</button>
-                            <button class="btn btn-primary btn-finalizar"><i class="bi bi-check-circle"></i> Finalizar</button>
-                            <button class="btn btn-danger btn-cancelar"><i class="bi bi-x-circle"></i> Cancelar</button>
-                        </div>
-                    `;
+                    <table class="table table-sm table-bordered text-center mb-3">
+                        <tr>
+                            <th>Placa</th>
+                            <th>Hora Inicio</th>
+                            <th>Servicio</th>
+                        </tr>
+                        <tr>
+                            <td>${c.vehiculo}</td>
+                            <td>${c.horainicio}</td>
+                            <td>${c.servicio}</td>
+                        </tr>
+                    </table>
+                    <div class="d-flex justify-content-around">
+                        <button class="btn btn-success btn-iniciar"><i class="bi bi-play-circle"></i> Iniciar</button>
+                        <button class="btn btn-primary btn-finalizar"><i class="bi bi-check-circle"></i> Finalizar</button>
+                        <button class="btn btn-danger btn-cancelar"><i class="bi bi-x-circle"></i> Cancelar</button>
+                    </div>
+                `;
                 } else {
                     Swal.fire("Error", data.message, "error");
                 }
@@ -133,6 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
 
     // ---------------------------
     // 5. Acciones dentro del modal

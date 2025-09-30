@@ -59,9 +59,10 @@ namespace AquaDriveSP.Controllers
 
                 // Traemos primero las citas a memoria usando el rango de fechas
                 var citasDb = db.cita
-                    .Where(c => c.empleadoid == empleadoId &&
+                    .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
                                 c.fechahorainicio >= inicioDia &&
-                                c.fechahorainicio < finDia)
+                                c.fechahorainicio < finDia &&
+                                c.estado != 3)
                     .ToList();
 
                 // Luego proyectamos los datos y formateamos las fechas/hours en memoria
@@ -84,6 +85,42 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = "Error al obtener citas: " + ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpGet]
+        public JsonResult GetDetalleCita(long citaId)
+        {
+            try
+            {
+                var empleadoId = (long)Session["UsuarioId"];
+
+                // Traemos primero la cita específica
+                var cita = db.cita
+                    .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
+                                c.citaid == citaId).FirstOrDefault();
+                    //.Select(c => new
+                    //{
+                    //    c.citaid,
+                    //    cliente = c.cliente.usuario.nombre,
+                    //    vehiculo = c.vehiculo != null ? c.vehiculo.placa : "N/A",
+                    //    servicio = c.tiposervicio != null ? c.tiposervicio.nombre : "N/A",
+                    //    sede = c.sede != null ? c.sede.nombre : "N/A",
+                    //    horainicio = c.fechahorainicio.ToString("HH:mm"),
+                    //    horafin = c.fechahorafin.HasValue ? c.fechahorafin.Value.ToString("HH:mm") : "--",
+                    //    estado = c.estado
+                    //})
+                    //.FirstOrDefault(); // <-- Retorna un solo objeto o null si no existe
+
+                if (cita == null)
+                    return Json(new { success = false, message = "Cita no encontrada" }, JsonRequestBehavior.AllowGet);
+
+                return Json(new { success = true, cita }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al obtener cita: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
         // Cambiar estado de una cita
         [HttpPost]
