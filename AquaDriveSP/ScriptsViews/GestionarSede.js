@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </button>
                 </td>
             `;
-            tbody.appendChild(tr);
+            if (s.sedeid !== 0) tbody.appendChild(tr);
         });
     }
 
@@ -74,8 +74,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 confirmButtonText: "Sí, eliminar",
                 cancelButtonText: "Cancelar",
                 customClass: {
-                    confirmButton: 'btn btn-success', // verde
-                    cancelButton: 'btn btn-danger'    // rojo
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
                 },
                 buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {

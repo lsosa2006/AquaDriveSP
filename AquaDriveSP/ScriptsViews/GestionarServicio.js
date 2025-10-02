@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // CLICK en Editar / Eliminar (delegation)
+    // CLICK en Editar / Eliminar
     tbody.addEventListener("click", function (e) {
         const tr = e.target.closest("tr");
         if (!tr) return;
@@ -75,8 +75,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 confirmButtonText: "Sí, eliminar",
                 cancelButtonText: "Cancelar",
                 customClass: {
-                    confirmButton: 'btn btn-success', // verde
-                    cancelButton: 'btn btn-danger'    // rojo
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
                 },
                 buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
             btnAdd.dataset.editing = servicioid;
             btnAdd.textContent = "GUARDAR";
 
-            // abrir modal (se asegura instancia)
+            // abrir modal
             const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
             modalInstance.show();
         }

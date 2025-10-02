@@ -7,6 +7,7 @@ using System.Web.Security;
 using System.Web.Services.Description;
 using AquaDriveSP.Autentication;
 using AquaDriveSP.Models;
+using AquaDriveSP.DTO;
 
 namespace AquaDriveSP.Controllers
 {
@@ -57,7 +58,7 @@ namespace AquaDriveSP.Controllers
                     e.usuarioid,
                     e.sedeid,
                     fechacontratacion = e.fechacontratacion.HasValue
-                        ? e.fechacontratacion.Value.ToString("yyyy-MM-dd") // formato válido para control HTL
+                        ? e.fechacontratacion.Value.ToString("yyyy-MM-dd")
                         : null,
                     e.estado,
                     usuario = new
@@ -173,7 +174,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // Guardar/actualizar horarios
+        // Guardar/actualizar horario de un solo empleado
         [HttpPost]
         public JsonResult SaveHorario(long empleadoId, List<Horario> horarios)
         {
@@ -195,7 +196,6 @@ namespace AquaDriveSP.Controllers
                     }
                     else
                     {
-                        // Crear nuevo 
                         db.horario.Add(new Horario
                         {
                             empleadoid = empleadoId,
@@ -208,7 +208,56 @@ namespace AquaDriveSP.Controllers
                 }
 
                 db.SaveChanges();
-                return Json(new { success = true, message = "Horarios guardados correctamente." });
+                return Json(new { success = true, message = "Horario guardado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error al guardar horarios: {ex.Message}" });
+            }
+        }
+        // Guardar/actualizar horario de todos los empleados empleado
+        [HttpPost]
+        public JsonResult SaveHorarios(List<EmpleadoHorarioDto> empleadosHorarios)
+        {
+            try
+            {
+                if (empleadosHorarios == null || empleadosHorarios.Count == 0)
+                    return Json(new { success = false, message = "No se enviaron datos de empleados." });
+
+                foreach (var emp in empleadosHorarios)
+                {
+                    if (emp.EmpleadoId <= 0 || emp.Horarios == null)
+                        continue;
+
+                    foreach (var h in emp.Horarios)
+                    {
+                        var horarioDb = db.horario
+                            .FirstOrDefault(x => x.empleadoid == emp.EmpleadoId && x.diasemana == h.diasemana);
+
+                        if (horarioDb != null)
+                        {
+                            // Actualizar
+                            horarioDb.horainicio = h.horainicio;
+                            horarioDb.horafin = h.horafin;
+                            horarioDb.estado = h.estado;
+                        }
+                        else
+                        {
+                            // Insertar
+                            db.horario.Add(new Horario
+                            {
+                                empleadoid = emp.EmpleadoId,
+                                diasemana = h.diasemana,
+                                horainicio = h.horainicio,
+                                horafin = h.horafin,
+                                estado = h.estado
+                            });
+                        }
+                    }
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = "Horarios guardados correctamente para todos los empleados." });
             }
             catch (Exception ex)
             {
@@ -273,13 +322,12 @@ namespace AquaDriveSP.Controllers
             }
         }
 
+        //Obtener estadisticas
         public JsonResult GetEstadisticas(DateTime fechaInicio, DateTime fechaFin)
         {
             try
             {
-                // -------------------
-                // Gráfico 1: autos lavados por empleado
-                // -------------------
+                // Autos lavados por empleado
                 var autosPorEmpleado = db.empleado
                     .Select(emp => new
                     {
@@ -292,9 +340,7 @@ namespace AquaDriveSP.Controllers
                     .Where(x => x.Cantidad > 0)
                     .ToList();
 
-                // -------------------
-                // Gráfico 2: servicios por sede
-                // -------------------
+                // Servicios por sede
                 var serviciosPorSede = db.sede
                     .Where(s => s.sedeid != 0)
                     .Select(s => new
@@ -308,9 +354,7 @@ namespace AquaDriveSP.Controllers
                     .Where(x => x.Cantidad > 0)
                     .ToList();
 
-                // -------------------
-                // Tabla: total por tipo de servicio
-                // -------------------
+                // Total por tipo de servicio
                 var ingresosPorServicio = db.tiposervicio
                     .Select(ts => new
                     {
@@ -349,7 +393,6 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-
         // Obtener sedes
         [HttpGet]
         public JsonResult GetSedes()
@@ -357,7 +400,6 @@ namespace AquaDriveSP.Controllers
             try
             {
                 var sedes = db.sede
-                    .Where(s => s.sedeid != 0)
                     .Select(s => new
                     {
                         s.sedeid,
@@ -373,6 +415,8 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = $"Error al obtener sedes: {ex.Message}" }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        //Crear sedes
         [HttpPost]
         public JsonResult CrearSede(Sede nuevaSede)
         {
@@ -389,6 +433,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
+        //Eliminar sede
         [HttpPost]
         public JsonResult DeleteSede(long sedeid)
         {
@@ -408,6 +453,8 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = $"Error al eliminar sede: {ex.Message}" });
             }
         }
+
+        //Actualizar sede
         [HttpPost]
         public JsonResult EditarSede(Sede sedeActualizada)
         {
@@ -431,7 +478,7 @@ namespace AquaDriveSP.Controllers
         }
 
 
-        //Obtener servicio
+        //Obtener servicios
         [HttpGet]
         public JsonResult GetServicios()
         {
@@ -453,6 +500,8 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = $"Error al obtener los servicios: {ex.Message}" }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        //Crear servicios
         [HttpPost]
         public JsonResult CrearServicio(TipoServicio nuevoServicio)
         {
@@ -469,6 +518,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
+        //Eliminar servicios
         [HttpPost]
         public JsonResult DeleteServicio(long servicioid)
         {
@@ -488,6 +538,8 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = $"Error al eliminar Servicio: {ex.Message}" });
             }
         }
+
+        //Editar servicios
         [HttpPost]
         public JsonResult EditarServicio(TipoServicio servicioActualizado)
         {

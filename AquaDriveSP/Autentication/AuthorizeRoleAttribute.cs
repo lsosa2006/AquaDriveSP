@@ -16,7 +16,7 @@ namespace AquaDriveSP.Autentication
 
         protected override bool AuthorizeCore(HttpContextBase httpContext)
         {
-            var sessionUser = httpContext.Session["Rol"]; // lo que guardes en la sesión
+            var sessionUser = httpContext.Session["Rol"];
             if (sessionUser == null)
                 return false;
 

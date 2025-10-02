@@ -75,7 +75,7 @@ namespace AquaDriveSP.Models
                 .HasForeignKey(c => c.sedeid);
             modelBuilder.Entity<Cita>()
                 .HasRequired(c => c.vehiculo)
-                .WithMany() // no es necesario mapear la colección inversa
+                .WithMany()
                 .HasForeignKey(c => c.placa);
 
             // --------------------

@@ -51,6 +51,24 @@ namespace AquaDriveSP.Controllers
                 return View();
             }
         }
+
+        public ActionResult Horario()
+        {
+            try
+            {
+                var empleadoId = (long)Session["UsuarioId"];
+                var horarios = db.horario
+                    .Where(h => h.empleado.usuarioid == empleadoId)
+                    .ToList();
+
+                return View(horarios);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al obtener horario: " + ex.Message;
+                return View();
+            }
+        }
         #endregion
 
         #region Funciones
@@ -64,7 +82,6 @@ namespace AquaDriveSP.Controllers
                 var inicioDia = DateTime.Today;
                 var finDia = inicioDia.AddDays(1);
 
-                // Traemos primero las citas a memoria usando el rango de fechas
                 var citasDb = db.cita
                     .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
                                 c.fechahorainicio >= inicioDia &&
@@ -72,7 +89,6 @@ namespace AquaDriveSP.Controllers
                                 c.estado != 3 && c.estado != 0)
                     .ToList();
 
-                // Luego proyectamos los datos y formateamos las fechas/hours en memoria
                 var citas = citasDb.Select(c => new
                 {
                     c.citaid,
@@ -93,12 +109,12 @@ namespace AquaDriveSP.Controllers
             }
         }
 
+        //Obtener una sola cita
         [HttpGet]
         public JsonResult GetDetalleCita(long citaId)
         {
             try
             {
-                // Traemos la cita a memoria primero
                 var citaDb = db.cita
                     .Where(c => c.citaid == citaId)
                     .FirstOrDefault();
@@ -106,7 +122,6 @@ namespace AquaDriveSP.Controllers
                 if (citaDb == null)
                     return Json(new { success = false, message = "Cita no encontrada" }, JsonRequestBehavior.AllowGet);
 
-                // Formateamos los datos en memoria
                 var cita = new
                 {
                     citaDb.citaid,

@@ -15,9 +15,8 @@
             max-width: 1200px;
         }
 
-        /* Columna izquierda: tamaño fijo menor */
         .card-left {
-            flex: 0 0 380px; /* ancho fijo de 380px */
+            flex: 0 0 380px;
             background: #e6f7ff;
             padding: 20px;
             border-radius: 15px;
@@ -25,10 +24,9 @@
             font-size: 1.05rem;
             display: flex;
             flex-direction: column;
-            overflow-wrap: break-word; /* ajustar texto */
+            overflow-wrap: break-word;
         }
 
-        /* Columna derecha: ocupa resto del espacio */
         .card-right {
             flex: 1;
             background: #e6f7ff;
@@ -40,21 +38,18 @@
             flex-direction: column;
         }
 
-        /* Titulos internos */
         .card h3 {
             text-align: center;
             margin-bottom: 15px;
             word-break: break-word;
         }
 
-        /* Listas */
         ul {
             padding-left: 20px;
             margin-bottom: 15px;
             word-break: break-word;
         }
 
-        /* Gráficos */
         .charts {
             display: flex;
             justify-content: center;
@@ -66,7 +61,7 @@
 
         .chart-box {
             flex: 1;
-            min-width: 300px; /* se adapta al tamaño disponible */
+            min-width: 300px;
             background: white;
             padding: 15px;
             border-radius: 10px;
@@ -77,7 +72,6 @@
             color: gold;
         }
 
-        /* Para que los botones y enlaces no rompan el layout */
         a.btn {
             align-self: flex-start;
         }
@@ -103,7 +97,6 @@
                 <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> ¡Sin registros!</p>
             }
 
-            <!-- Lavados por sede -->
             <h3>Lavados hoy por sede</h3>
             @if (Model.AdminData.AutosPorSede.Any())
             {
@@ -173,7 +166,6 @@
             }
         </div>
 
-        <!-- Columna derecha -->
         <div class="card card-right flex-fill">
             <h3>Historial semanal</h3>
             <canvas id="citasChart" height="250"></canvas>
@@ -201,16 +193,16 @@
             <text>
             var ctx = document.getElementById('ingresosChart').getContext('2d');
             var ingresosChart = new Chart(ctx, {
-                type: "line", // igual que el de empleado
+                type: "line",
                 data: {
                     labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AdminData.DiasUltimos7Dias)),
                     datasets: [{
                         label: "Ingresos",
                         data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AdminData.IngresosUltimos7Dias)),
                         borderColor: "#00cfff",
-                        backgroundColor: "rgba(0, 207, 255, 0.2)", // mismo efecto relleno
+                        backgroundColor: "rgba(0, 207, 255, 0.2)",
                         borderWidth: 2,
-                        tension: 0.3, // suaviza la línea
+                        tension: 0.3,
                         fill: true,
                         pointBackgroundColor: "#00cfff",
                         pointRadius: 5
@@ -254,7 +246,7 @@
             <text>
             var ctxEmpleado = document.getElementById('citasChart').getContext('2d');
             var citasChart = new Chart(ctxEmpleado, {
-                type: "line", // puede ser "bar" si prefieres barras
+                type: "line", // puede ser "bar" para barras
                 data: {
                     labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EmpleadoData.DiasUltimos7Dias)),
                     datasets: [{

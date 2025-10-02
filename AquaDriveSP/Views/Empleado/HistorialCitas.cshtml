@@ -10,13 +10,13 @@
         .empleado-container {
             max-width: 1600px;
             margin: 40px auto;
-            padding: 30px; /* mismo padding que dashboard */
-            background: #e6f7ff; /* azul exacto del dashboard */
-            border-radius: 15px; /* igual que dashboard */
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3); /* misma sombra */
+            padding: 30px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
             display: flex;
-            flex-direction: column; /* como las cards del dashboard */
-            gap: 20px; /* espacio interno entre elementos */
+            flex-direction: column;
+            gap: 20px;
         }
 
             .empleado-container h2 {
@@ -57,7 +57,6 @@
                 margin-right: 8px;
             }
 
-        /* Contenedor de paginación */
         .pagination {
             display: flex;
             justify-content: center;
@@ -67,12 +66,11 @@
             padding: 0;
         }
 
-            /* Botones de paginación */
             .pagination li {
-                background-color: #ffffff; /* fondo blanco */
-                color: #00cfff; /* número azul claro */
+                background-color: #ffffff;
+                color: #00cfff;
                 border-radius: 8px;
-                padding: 8px 16px; /* tamaño de botón */
+                padding: 8px 16px;
                 cursor: pointer;
                 font-weight: bold;
                 text-align: center;
@@ -84,20 +82,17 @@
                 box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             }
 
-                /* Hover sobre los botones */
                 .pagination li:hover {
                     transform: translateY(-2px) scale(1.05);
                     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
                 }
 
-                /* Botón activo */
                 .pagination li.active {
-                    transform: scale(1.1); /* botón un poco más grande */
-                    color: #007b8f; /* número azul más oscuro */
+                    transform: scale(1.1);
+                    color: #007b8f;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                 }
 
-                /* Asegurar que los links internos ocupen todo el recuadro */
                 .pagination li a {
                     display: inline-flex;
                     width: 100%;
@@ -105,10 +100,9 @@
                     align-items: center;
                     justify-content: center;
                     text-decoration: none;
-                    color: inherit; /* hereda color del li */
+                    color: inherit;
                 }
 
-        /* Input de búsqueda */
         .search {
             border-radius: 10px;
             border: 1px solid #00cfff;

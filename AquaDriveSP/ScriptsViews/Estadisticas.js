@@ -1,8 +1,5 @@
-﻿// ScriptsViews/Estadisticas.js
-document.addEventListener("DOMContentLoaded", function () {
-    // ---------------------------
+﻿document.addEventListener("DOMContentLoaded", function () {
     // Variables globales
-    // ---------------------------
     const fechaInicioInput = document.getElementById("fecha-inicio");
     const fechaFinInput = document.getElementById("fecha-fin");
     const btnBuscar = document.querySelector(".filter-row .btn-blue");
@@ -11,9 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let chart1 = null; // Autos por empleado
     let chart2 = null; // Servicios por sede
 
-    // ---------------------------
-    // 1. Función para obtener estadísticas desde backend
-    // ---------------------------
+    //Obtener estadísticas desde backend
     function cargarEstadisticas() {
         const fechaInicio = fechaInicioInput.value;
         const fechaFin = fechaFinInput.value;
@@ -47,15 +42,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ---------------------------
-    // 2. Renderizar gráfico 1: Autos lavados por empleado
-    // ---------------------------
+    // Renderizar gráfico 1: Autos lavados por empleado
     function renderChart1(datos) {
         const ctx = document.getElementById("chart1").getContext("2d");
         if (chart1) chart1.destroy();
 
         chart1 = new Chart(ctx, {
-            type: "bar", // se mantiene bar
+            type: "bar",
             data: {
                 labels: datos.map(x => x.Nombre),
                 datasets: [{
@@ -94,9 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ---------------------------
-    // 3. Renderizar gráfico 2: Servicios por sede (Bar Chart)
-    // ---------------------------
+    // Renderizar gráfico 2: Servicios por sede
     function renderChart2(datos) {
         const ctx = document.getElementById("chart2").getContext("2d");
         if (chart2) chart2.destroy();
@@ -141,9 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ---------------------------
-    // 4. Renderizar tabla de ingresos
-    // ---------------------------
+    // Renderizar tabla de ingresos
     function renderTabla(datos) {
         tbodyIngresos.innerHTML = "";
 
@@ -168,14 +157,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ---------------------------
-    // 5. Eventos
-    // ---------------------------
+    // Eventos
     btnBuscar.addEventListener("click", cargarEstadisticas);
 
-    // ---------------------------
-    // 6. Inicialización
-    // ---------------------------
+    // Inicialización
     // Auto-cargar con fechas del mes actual
     const hoy = new Date();
     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);

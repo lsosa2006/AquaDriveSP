@@ -7,9 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let citas = []; // Citas cargadas desde backend
     let citaIdGestion = null; // Para modal de gestionar
 
-    // ---------------------------
-    // 1. Cargar citas desde backend
-    // ---------------------------
+    // Cargar citas desde backend
     function cargarCitas() {
         $.ajax({
             url: "/Empleado/GetCitasAsignadas",
@@ -28,9 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ---------------------------
-    // 2. Renderizar tabla de citas
-    // ---------------------------
+    // Renderizar tabla de citas
     function renderTabla() {
         tbody.innerHTML = "";
 
@@ -78,9 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ---------------------------
-    // 3. Delegación de acciones de fila
-    // ---------------------------
+    // Delegación de acciones de fila
     tbody.addEventListener("click", function (e) {
         const tr = e.target.closest("tr");
         if (!tr) return;
@@ -93,14 +87,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ---------------------------
-    // 4. Cargar detalle de la cita en modal
-    // ---------------------------
+    // Cargar detalle de la cita en modal
     function cargarDetalleCita(citaId) {
         $.ajax({
-            url: `/Empleado/GetDetalleCita`, // URL base del controlador
+            url: `/Empleado/GetDetalleCita`,
             method: "GET",
-            data: { citaId: citaId },        // Pasamos citaId como parámetro
+            data: { citaId: citaId },
             success: function (data) {
                 if (data.success) {
                     const c = data.cita;
@@ -155,9 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ---------------------------
-    // 5. Acciones dentro del modal
-    // ---------------------------
+    // Acciones dentro del modal
     document.querySelector("#modalGestionar").addEventListener("click", function (e) {
         if (!citaIdGestion) return;
 
@@ -193,9 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ---------------------------
-    // 6. Cambiar estado de la cita
-    // ---------------------------
+    // Cambiar estado de la cita
     function cambiarEstadoCita(nuevoEstado) {
         $.ajax({
             url: "/Empleado/CambiarEstadoCita",

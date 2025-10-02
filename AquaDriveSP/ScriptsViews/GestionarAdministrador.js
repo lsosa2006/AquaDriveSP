@@ -7,9 +7,7 @@
     let administradores = []; // Cache de administradores
     const spinnerModal = new bootstrap.Modal(document.getElementById("spinnerModal"));
 
-    // ---------------------------
-    // 1. Cargar administradores desde backend
-    // ---------------------------
+    // Cargar administradores desde backend
     function cargarAdministradores() {
         $.ajax({
             url: "/Admin/GetAdministradores",
@@ -28,9 +26,7 @@
         });
     }
 
-    // ---------------------------
-    // 2. Renderizar tabla de administradores
-    // ---------------------------
+    // Renderizar tabla de administradores
     function renderTabla() {
         tbody.innerHTML = "";
 
@@ -66,9 +62,7 @@
         });
     }
 
-    // ---------------------------
-    // 3. Crear administrador
-    // ---------------------------
+    // Crear administrador
     btnAdd.addEventListener("click", function () {
         let valido = true;
         const nuevoAdmin = {};
@@ -150,9 +144,7 @@
         });
     });
 
-    // ---------------------------
-    // 4. Delegación de acciones de fila (Eliminar)
-    // ---------------------------
+    // Delegación de acciones de fila (Eliminar)
     tbody.addEventListener("click", function (e) {
         const tr = e.target.closest("tr");
         if (!tr) return;
@@ -167,8 +159,8 @@
                 confirmButtonText: "Sí, eliminar",
                 cancelButtonText: "Cancelar",
                 customClass: {
-                    confirmButton: 'btn btn-success', // verde
-                    cancelButton: 'btn btn-danger'    // rojo
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
                 },
                 buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {

@@ -11,7 +11,7 @@ namespace AquaDriveSP.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long usuarioid { get; set; }  // manual, no Identity
+        public long usuarioid { get; set; }
         public string nombre { get; set; }
         public string apellido { get; set; }
         public string email { get; set; }
@@ -20,8 +20,8 @@ namespace AquaDriveSP.Models
         public DateTime fechacreacion { get; set; }
 
         public virtual ICollection<Cliente> clientes { get; set; }
-        public virtual ICollection<Empleado> empleados { get; set; } // 1:1
-        public virtual ICollection<Administrador> administradores { get; set; } // 1:1
+        public virtual ICollection<Empleado> empleados { get; set; }
+        public virtual ICollection<Administrador> administradores { get; set; }
     }
 }
 

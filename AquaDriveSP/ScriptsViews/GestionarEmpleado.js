@@ -9,9 +9,7 @@
     let empleados = []; // Cache de empleados
     let empleadoIdHorario = null; // Empleado actualmente editando horario
 
-    // ---------------------------
-    // 1. Cargar sedes desde backend
-    // ---------------------------
+    // Cargar sedes desde backend
     function cargarSedes() {
         $.ajax({
             url: "/Admin/GetSedes",
@@ -19,6 +17,7 @@
             success: function (data) {
                 if (data.success) {
                     sedes = data.sedes;
+                    cargarEmpleados();
                 } else {
                     Swal.fire("Error", data.message, "error");
                 }
@@ -29,9 +28,7 @@
         });
     }
 
-    // ---------------------------
-    // 2. Cargar empleados desde backend
-    // ---------------------------
+    // Cargar empleados desde backend
     function cargarEmpleados() {
         $.ajax({
             url: "/Admin/GetEmpleados",
@@ -50,9 +47,7 @@
         });
     }
 
-    // ---------------------------
-    // 3. Renderizar tabla de empleados
-    // ---------------------------
+    // Renderizar tabla de empleados
     function renderTabla() {
         tbody.innerHTML = "";
 
@@ -68,7 +63,7 @@
         empleados.forEach(emp => {
             const tr = document.createElement("tr");
 
-            // 🔹 Normalizar la fecha
+            // Normalizar la fecha
             let fechaContrato = "";
             if (emp.fechacontratacion) {
                 const fecha = new Date(emp.fechacontratacion);
@@ -118,9 +113,7 @@
         });
     }
 
-    // ---------------------------
-    // 4. Guardar cambios (bulk update)
-    // ---------------------------
+    // Guardar cambios
     btnGuardar.addEventListener("click", function () {
         if (empleados.length === 0) {
             Swal.fire("Error", "Sin registros para actualizar", "error");
@@ -167,7 +160,6 @@
                     Swal.fire("Éxito", data.message, "success").then(() => {
                         spinnerModal.hide();
                         cargarSedes();
-                        cargarEmpleados();
                     });
                 } else {
                     Swal.fire("Error", data.message, "error").then(() => {
@@ -183,9 +175,7 @@
         });
     });
 
-    // ---------------------------
-    // 5. Delegación de acciones de fila
-    // ---------------------------
+    // Delegación de acciones de fila
     tbody.addEventListener("click", function (e) {
         const tr = e.target.closest("tr");
         if (!tr) return;
@@ -201,8 +191,8 @@
                 confirmButtonText: "Sí, eliminar",
                 cancelButtonText: "Cancelar",
                 customClass: {
-                    confirmButton: 'btn btn-success', // verde
-                    cancelButton: 'btn btn-danger'    // rojo
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
                 },
                 buttonsStyling: false // necesario para que tome las clases de Bootstrap
             }).then(result => {
@@ -217,7 +207,6 @@
                                 Swal.fire("Eliminado", "Empleado eliminado.", "success").then(() => {
                                     spinnerModal.hide();
                                     cargarSedes();
-                                    cargarEmpleados();
                                 });
                             } else {
                                 Swal.fire("Error", data.message, "error").then(() => {
@@ -230,7 +219,7 @@
             });
         }
 
-        // --- Asignar horario ---
+        // Asignar horario individualmente
         if (e.target.closest(".btn-horario")) {
             empleadoIdHorario = id;
             cargarHorario(id);
@@ -238,9 +227,7 @@
         }
     });
 
-    // ---------------------------
-    // 6. Cargar horarios en modal
-    // ---------------------------
+    // Cargar horario en modal
     function cargarHorario(empleadoId) {
         $.ajax({
             url: `/Admin/GetHorario?empleadoId=${empleadoId}`,
@@ -284,33 +271,29 @@
         });
     }
 
-    // ---------------------------
-    // 7. Guardar horarios desde modal
-    // ---------------------------
+    // Guardar horario desde modal a un solo empleado
     document.querySelector("#modalHorario .btn-primary").addEventListener("click", function () {
         const filas = document.querySelectorAll("#modalHorario tbody tr");
         const horarios = [];
         let valido = true;
+        const nombresDias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
-        filas.forEach(fila => {
+        for (const fila of filas) {
             const activo = fila.querySelector("input[type='checkbox']").checked ? 1 : 0;
             const hInicio = fila.querySelector(".hora-inicio").value;
             const hFin = fila.querySelector(".hora-fin").value;
-            const nombresDias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
             const dia = parseInt(fila.dataset.diasemana);
 
-            // Validar que todas las filas tengan hora asignada
             if (!hInicio || !hFin) {
                 Swal.fire("Error", `Debes asignar hora de inicio y fin en el día ${nombresDias[dia]}.`, "error");
                 valido = false;
-                return; // corta solo esta fila
+                break;
             }
 
-            // Validar que hora inicio < hora fin si está activo
             if (hInicio >= hFin) {
                 Swal.fire("Error", `La hora de inicio debe ser menor que la hora fin en el día ${nombresDias[dia]}.`, "error");
                 valido = false;
-                return;
+                break;
             }
 
             horarios.push({
@@ -319,7 +302,7 @@
                 horafin: hFin,
                 estado: activo
             });
-        });
+        }
         if (!valido) return; 
         spinnerModal.show();
         $.ajax({
@@ -347,16 +330,7 @@
         });
     });
 
-
-    // ---------------------------
-    // Inicialización
-    // ---------------------------
-    cargarSedes();
-    cargarEmpleados();
-
-    // ---------------------------
-    // 8. Buscador en tabla
-    // ---------------------------
+    // Buscador en tabla
     document.getElementById("buscador").addEventListener("keyup", function () {
         const filtro = this.value.toLowerCase();
         const filas = tbody.querySelectorAll("tr");
@@ -366,4 +340,121 @@
             fila.style.display = textoFila.includes(filtro) ? "" : "none";
         });
     });
+
+    // Renderizar tabla de horarios de todos los empleados
+    function renderHorarioTodos() {
+        const tbody = document.querySelector("#modalHorarioTodos tbody");
+        tbody.innerHTML = ""; // limpiar antes de renderizar
+
+        const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+        for (let i = 0; i < dias.length; i++) {
+            const tr = document.createElement("tr");
+            tr.dataset.diasemana = i;
+
+            tr.innerHTML = `
+            <td>${dias[i]}</td>
+            <td><input type="time" class="hora-inicio form-control"></td>
+            <td><input type="time" class="hora-fin form-control"></td>
+            <td class="text-center">
+                <div class="form-check form-switch d-flex justify-content-center">
+                    <input class="form-check-input estado-switch" type="checkbox">
+                </div>
+            </td>
+        `;
+
+            tbody.appendChild(tr);
+        }
+    }
+
+    // Abrir modal de horario de todos los empleados
+    document.getElementById("btnHorarioTodos").addEventListener("click", function () {
+        renderHorarioTodos();
+    });
+
+    // Guardar horarios de todos los empleados
+    document.querySelector("#modalHorarioTodos .btn-primary").addEventListener("click", function () {
+        const filas = document.querySelectorAll("#modalHorarioTodos tbody tr");
+        const horarios = [];
+        let valido = true;
+        const nombresDias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+        for (const fila of filas) {
+            const activo = fila.querySelector("input[type='checkbox']").checked ? 1 : 0;
+            const hInicio = fila.querySelector(".hora-inicio").value;
+            const hFin = fila.querySelector(".hora-fin").value;
+            const dia = parseInt(fila.dataset.diasemana);
+
+            if (!hInicio || !hFin) {
+                Swal.fire("Error", `Debes asignar hora de inicio y fin en el día ${nombresDias[dia]}.`, "error");
+                valido = false;
+                break;
+            }
+            if (hInicio >= hFin) {
+                Swal.fire("Error", `La hora de inicio debe ser menor que la hora fin en el día ${nombresDias[dia]}.`, "error");
+                valido = false;
+                break;
+            }     
+                
+
+            horarios.push({
+                diasemana: dia,
+                horainicio: hInicio || null,
+                horafin: hFin || null,
+                estado: activo
+            });
+        }
+
+        if (!valido) return;
+
+        // Recoger todos los empleados desde la tabla principal
+        const filasEmpleados = document.querySelectorAll(".admin-container tbody tr");
+        const empleadosHorarios = [];
+
+        filasEmpleados.forEach(tr => {
+            const empleadoId = parseInt(tr.dataset.id);
+            if (empleadoId > 0) {
+                empleadosHorarios.push({
+                    EmpleadoId: empleadoId,
+                    Horarios: horarios
+                });
+            }
+        });
+
+        if (empleadosHorarios.length === 0) {
+            Swal.fire("Error", "No hay empleados para asignar horarios.", "error");
+            return;
+        }
+
+        // Enviar con AJAX 
+        spinnerModal.show();
+        $.ajax({
+            url: "/Admin/SaveHorarios",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(empleadosHorarios),
+            success: function (data) {
+                if (data.success) {
+                    Swal.fire("Éxito", data.message, "success").then(() => {
+                        spinnerModal.hide();
+                        bootstrap.Modal.getInstance(document.getElementById("modalHorarioTodos")).hide();
+                    });
+                } else {
+                    Swal.fire("Error", data.message, "error").then(() => {
+                        spinnerModal.hide();
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire("Error", "No se pudieron guardar los horarios.", "error").then(() => {
+                    spinnerModal.hide();
+                });
+            }
+        });
+    });
+
+    // ---------------------------
+    // Inicialización
+    // ---------------------------
+    cargarSedes();
 });

@@ -11,42 +11,36 @@ namespace AquaDriveSP.Controllers
     public class LoginController : Controller
     {
         private readonly AppDbContext _db = new AppDbContext();
-
-        // GET: /Login/IniciarSesion
+        #region Vistas
         public ActionResult IniciarSesion()
         {
             return View();
         }
 
-        // GET: /Login/Registro
         public ActionResult Registro()
         {
             return View();
         }
 
-        // GET: /Login/RecuperarContrasena
         public ActionResult RecuperarContrasena()
         {
             return View();
         }
-
-        // ---------------------------
-        // Registro
-        // ---------------------------
+        #endregion
+        #region Funciones
+        // Registrar usuario
         [HttpPost]
         public ActionResult Registro(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
         {
             try
             {
-                string mensaje = ""; 
-                // Validaciones
+                string mensaje = "";
                 if (_db.usuario.Any(u => u.email == correo))
                     return Json(new { exito = false, mensaje = "El correo ya está registrado." });
 
                 if (_db.usuario.Any(u => u.usuarioid == usuarioId))
                     return Json(new { exito = false, mensaje = "El número de documento ya está registrado." });
 
-                // Crear usuario base
                 var usuario = new Usuario
                 {
                     usuarioid = usuarioId,
@@ -100,15 +94,12 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // ---------------------------
         // Inicio de sesión
-        // ---------------------------
         [HttpPost]
         public ActionResult IniciarSesion(long usuarioId, string contrasena)
         {
             try
             {
-                // 1. Buscar solo por el usuario (documento o correo)
                 var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId);
 
                 if (usuario == null)
@@ -116,7 +107,6 @@ namespace AquaDriveSP.Controllers
                     return Json(new { exito = false, mensaje = "El usuario no existe." });
                 }
 
-                // 2. Validar la contraseña
                 if (usuario.contrasena != contrasena)
                 {
                     return Json(new { exito = false, mensaje = "La contraseña es incorrecta." });
@@ -189,9 +179,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // ---------------------------
         // Recuperación de contraseña
-        // ---------------------------
         [HttpPost]
         public ActionResult RecuperarContrasena(long usuarioId, string correo)
         {
@@ -230,9 +218,7 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        // ---------------------------
         // Función auxiliar
-        // ---------------------------
         private string GenerarContrasenaAleatoria(int longitud = 8)
         {
             const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -240,5 +226,6 @@ namespace AquaDriveSP.Controllers
             return new string(Enumerable.Repeat(chars, longitud)
                 .Select(s => s[rnd.Next(s.Length)]).ToArray());
         }
+        #endregion
     }
 }

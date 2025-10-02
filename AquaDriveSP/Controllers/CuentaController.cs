@@ -14,6 +14,7 @@ namespace AquaDriveSP.Controllers
     public class CuentaController : Controller
     {
         private readonly AppDbContext db = new AppDbContext();
+        #region Vistas
         public ActionResult EditarDatos()
         {
             try
@@ -28,21 +29,20 @@ namespace AquaDriveSP.Controllers
             }
             catch (Exception ex)
             {
-                // Podrías mostrar una vista de error si algo falla
                 ViewBag.Error = $"Error al cargar los datos: {ex.Message}";
                 return View();
             }
         }
         public ActionResult CerrarSesion()
         {
-            // 1. Limpiar la sesión
+            // Limpiar la sesión
             Session.Clear();
             Session.Abandon();
 
-            // 2. Limpiar la cookie de autenticación
+            // Limpiar la cookie de autenticación
             FormsAuthentication.SignOut();
 
-            // 3. Redirigir al login
+            // Redirigir al login
             return RedirectToAction("IniciarSesion", "Login");
         }
         public ActionResult CambiarContrasena()
@@ -63,7 +63,9 @@ namespace AquaDriveSP.Controllers
                 return View();
             }
         }
+        #endregion
 
+        #region Funciones
         [HttpPost]
         public JsonResult ActualizarDatosPersonales(Usuario usuario)
         {
@@ -89,8 +91,6 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-
-        
         [HttpPost]
         public JsonResult CambiarContrasena(long usuarioid, string contrasenaActual, string nuevaContrasena, string confirmarContrasena)
         {
@@ -123,5 +123,6 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = $"Error al cambiar la contraseña: {ex.Message}" });
             }
         }
+        #endregion
     }
 }
