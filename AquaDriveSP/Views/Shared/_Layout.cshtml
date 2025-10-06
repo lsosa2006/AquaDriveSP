@@ -3,6 +3,7 @@
     var rol = Session["Rol"] != null ? Session["Rol"].ToString() : "Invitado";
     var versionApp = "v1.0.0";
     var fechaActual = DateTime.Now.ToString("dd/MM/yyyy");
+    var hasVehicle = Session["HasVehicle"] != null && (bool)Session["HasVehicle"];
 }
 
 <!DOCTYPE html>
@@ -188,7 +189,33 @@
                 }
                 @if (rol == "Cliente")
                 {
-
+                   <li class="dropdown">
+                       <a href="#">Citas ▾</a>
+                       <ul class="submenu">
+                           @if (hasVehicle)
+                           {
+                               <li><a href="@Url.Action("AgendarCita", "Cliente")">Agendar cita</a></li>
+                               <li><a href="@Url.Action("CitasPendientes", "Cliente")">Citas pendientes</a></li>
+                               <li><a href="@Url.Action("HistorialCitas", "Cliente")">Historial de citas</a></li>
+                           }
+                           else
+                           {
+                               <li class="text-center px-3 py-2">
+                                   <small class="text-white d-block mb-2">
+                                       Agrega un vehículo para usar este apartado
+                                   </small>
+                                   <a href="@Url.Action("MisVehiculos", "Cliente")"
+                                      class="btn btn-sm btn-light text-primary fw-bold px-2 py-1"
+                                      style="font-size: 0.8rem;">
+                                       Ir a mis vehículos
+                                   </a>
+                               </li>
+                           }
+                       </ul>
+                   </li>
+                    <li><a href="@Url.Action("Resenas", "Cliente")">Reseñas realizadas</a></li>
+                    <li><a href="@Url.Action("MisVehiculos", "Cliente")">Gestionar vehiculos</a></li>
+                    <li><a href="@Url.Action("InfoEmpresa", "Cliente")">Información general</a></li>
                 }
                 <li class="dropdown">
                     <a href="#">Configuración ▾</a>

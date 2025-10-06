@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const apellido = document.getElementById("apellido").value.trim();
         const correo = document.getElementById("correo").value.trim();
         const telefono = document.getElementById("telefono").value.trim();
+        const direccion = document.getElementById("direccion").value.trim();
         const contrasena = document.getElementById("contrasena").value.trim();
         const tipoCuentaInput = document.querySelector("input[name='tipoCuenta']:checked");
         const tipoCuenta = tipoCuentaInput ? tipoCuentaInput.value : "";
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
         const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const regexTelefono = /^[0-9]{10}$/;
-
+        const regexDireccion = /^[a-zA-Z0-9\s.,#-]{5,}$/;
         // Validaciones
         if (!usuarioId || isNaN(usuarioId)) {
             Swal.fire("Error", "El documento debe ser un número válido.", "error");
@@ -44,6 +45,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!regexTelefono.test(telefono)) {
             Swal.fire("Error", "El telefono debe contener solo numeros (10 digitos).", "error");
+            return;
+        }
+
+        if (!direccion || !regexDireccion.test(direccion)) {
+            Swal.fire("Error", "Ingresa una dirección válida (mínimo 5 caracteres, letras, números y símbolos , . # -).", "error");
             return;
         }
 
@@ -71,6 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 apellido,
                 correo,
                 telefono,
+                direccion,
                 contrasena,
                 tipoCuenta
             },

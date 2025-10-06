@@ -16,6 +16,6 @@ namespace AquaDriveSP.ViewModels
         public DashboardEmpleadoViewModel EmpleadoData { get; set; }
 
         // Cliente
-        public List<string> ClienteCitas { get; set; }
+        public DashboardClienteViewModel ClienteData { get; set; }
     }
 }

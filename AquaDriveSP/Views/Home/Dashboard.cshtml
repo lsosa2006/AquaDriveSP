@@ -171,16 +171,61 @@
             <canvas id="citasChart" height="250"></canvas>
         </div>
     }
-    else if (Model.Rol == "Cliente" && Model.ClienteCitas != null)
+    else if (Model.Rol == "Cliente" && Model.ClienteData != null)
     {
-        <div class="card">
-            <h3>Mis Citas</h3>
-            <ul>
-                @foreach (var c in ViewBag.MisCitas)
-                {
-                    <li>@c</li>
-                }
-            </ul>
+        <div class="card card-left flex-fill">
+            <h3>Próxima cita</h3>
+            @if (Model.ClienteData.ProximaCita != null)
+            {
+                <ul>
+                    <li><strong>Sede:</strong> @Model.ClienteData.ProximaCita.Sede</li>
+                    <li><strong>Servicio:</strong> @Model.ClienteData.ProximaCita.Servicio</li>
+                    <li><strong>Hora:</strong> @Model.ClienteData.ProximaCita.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm")</li>
+                    <li><strong>Vehículo:</strong> @Model.ClienteData.ProximaCita.Vehiculo</li>
+                </ul>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> No tienes citas programadas.</p>
+            }
+
+            <h3 class="mt-4">Últimas 3 citas finalizadas</h3>
+            @if (Model.ClienteData.UltimasCitas.Any())
+            {
+                <ul>
+                    @foreach (var c in Model.ClienteData.UltimasCitas)
+                    {
+                        <li>
+                            <strong>@c.Sede</strong> - @c.Servicio
+                            (<span>@c.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm")</span>)
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> No tienes citas finalizadas aún.</p>
+            }
+
+            <a href="@Url.Action("ReservarCita", "Citas")" class="btn btn-success mt-2">Reservar nueva cita</a>
+            <a href="@Url.Action("HistorialCitas", "Citas")" class="btn btn-info mt-2">Ver historial completo</a>
+        </div>
+
+        <div class="card card-right flex-fill text-center">
+            <h3>Sede más cercana</h3>
+            @if (!string.IsNullOrEmpty(Model.ClienteData.SedeMasCercana))
+            {
+                <p><strong>@Model.ClienteData.SedeMasCercana</strong> (a @Model.ClienteData.DistanciaSedeKm:F2 km)</p>
+                <a target="_blank" href="https://www.google.com/maps?q=@Model.ClienteData.LatitudSede,@Model.ClienteData.LongitudSede">
+                    <img class="img-fluid rounded"
+                         src="https://maps.googleapis.com/maps/api/staticmap?center=@Model.ClienteData.LatitudSede,@Model.ClienteData.LongitudSede&zoom=15&size=600x300&markers=color:red%7C@Model.ClienteData.LatitudSede,@Model.ClienteData.LongitudSede&key=TU_API_KEY"
+                         alt="Mapa de la sede más cercana" />
+                </a>
+            }
+            else
+            {
+                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> No se encontró ninguna sede cercana.</p>
+            }
         </div>
     }
 </div>
@@ -289,7 +334,7 @@
             });
             </text>
         }
-        else if(Model.Rol == "Cliente" && Model.ClienteCitas != null)
+        else if(Model.Rol == "Cliente" && Model.ClienteData != null)
         {
 
         }

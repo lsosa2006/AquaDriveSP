@@ -17,6 +17,7 @@ namespace AquaDriveSP.Models
         public string email { get; set; }
         public string telefono { get; set; }
         public string contrasena { get; set; }
+        public string direccion { get; set; }
         public DateTime fechacreacion { get; set; }
 
         public virtual ICollection<Cliente> clientes { get; set; }

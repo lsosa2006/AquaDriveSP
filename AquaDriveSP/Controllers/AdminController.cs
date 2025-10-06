@@ -422,6 +422,11 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
+                var geo = new Utilities.Location.Location();
+                var coordenadas = geo.ObtenerCoordenadas(nuevaSede.direccion);
+
+                nuevaSede.latitud = coordenadas.lat;
+                nuevaSede.longitud = coordenadas.lng;
                 db.sede.Add(nuevaSede);
                 db.SaveChanges();
 

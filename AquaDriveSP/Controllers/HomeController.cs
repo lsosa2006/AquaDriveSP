@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using AquaDriveSP.Autentication;
 using AquaDriveSP.Models;
 using AquaDriveSP.ViewModels;
+using static AquaDriveSP.ViewModels.DashboardClienteViewModel;
 using static AquaDriveSP.ViewModels.DashboardEmpleadoViewModel;
 
 
@@ -162,7 +163,70 @@ namespace AquaDriveSP.Controllers
             }
             else if (rol == "Cliente")
             {
-                ViewBag.MisCitas = new List<string> { "Cita 1: 10:00am", "Cita 2: 3:00pm" };
+                var clienteId = (long)Session["UsuarioId"];
+                var cliente = db.cliente.FirstOrDefault(c => c.usuarioid == clienteId);
+
+                var clienteVm = new DashboardClienteViewModel();
+
+                if (cliente != null)
+                {
+                    // --- Últimas 3 citas finalizadas ---
+                    clienteVm.UltimasCitas = db.cita
+                        .Where(c => c.clienteid == cliente.clienteid && c.estado == 3)
+                        .OrderByDescending(c => c.fechahorafin)
+                        .Take(3)
+                        .Select(c => new CitaClienteCard
+                        {
+                            Sede = c.sede.nombre,
+                            Servicio = c.tiposervicio.nombre,
+                            FechaHoraInicio = c.fechahorainicio,
+                            FechaHoraFin = c.fechahorafin ?? c.fechahorainicio,
+                            Vehiculo = c.vehiculo.placa
+                        })
+                        .ToList();
+
+                    // --- Próxima cita programada ---
+                    clienteVm.ProximaCita = db.cita
+                        .Where(c => c.clienteid == cliente.clienteid && c.estado == 1 && c.fechahorainicio > DateTime.Now)
+                        .OrderBy(c => c.fechahorainicio)
+                        .Select(c => new CitaClienteCard
+                        {
+                            Sede = c.sede.nombre,
+                            Servicio = c.tiposervicio.nombre,
+                            FechaHoraInicio = c.fechahorainicio,
+                            FechaHoraFin = c.fechahorafin ?? c.fechahorainicio,
+                            Vehiculo = c.vehiculo.placa
+                        })
+                        .FirstOrDefault();
+
+                    // --- Sede más cercana ---
+                    if (cliente.latitud != 0 && cliente.longitud != 0)
+                    {
+                        var sedes = db.sede.ToList();
+
+                        var geo = new Utilities.Location.Location();
+
+                        var sedeCercana = sedes
+                            .Select(s => new
+                            {
+                                s.nombre,
+                                s.latitud,
+                                s.longitud,
+                                Distancia = geo.CalcularDistancia(cliente.latitud, cliente.longitud, s.latitud, s.longitud)
+                            })
+                            .OrderBy(x => x.Distancia)
+                            .FirstOrDefault();
+
+                        if (sedeCercana != null)
+                        {
+                            clienteVm.SedeMasCercana = sedeCercana.nombre;
+                            clienteVm.LatitudSede = sedeCercana.latitud;
+                            clienteVm.LongitudSede = sedeCercana.longitud;
+                            clienteVm.DistanciaSedeKm = sedeCercana.Distancia;
+                        }
+                    }
+                }
+                vm.ClienteData = clienteVm;
             }
 
             ViewBag.Rol = rol;

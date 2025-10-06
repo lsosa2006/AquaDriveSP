@@ -14,6 +14,8 @@ namespace AquaDriveSP.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long clienteid { get; set; }
         public long usuarioid { get; set; }
+        public double latitud { get; set; }
+        public double longitud { get; set; }
 
         public virtual Usuario usuario { get; set; }
         public virtual ICollection<Vehiculo> vehiculos { get; set; }

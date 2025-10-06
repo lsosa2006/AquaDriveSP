@@ -10,7 +10,7 @@ namespace AquaDriveSP.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly AppDbContext _db = new AppDbContext();
+        private readonly AppDbContext db = new AppDbContext();
         #region Vistas
         public ActionResult IniciarSesion()
         {
@@ -30,15 +30,15 @@ namespace AquaDriveSP.Controllers
         #region Funciones
         // Registrar usuario
         [HttpPost]
-        public ActionResult Registro(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string tipoCuenta)
+        public ActionResult Registro(long usuarioId, string nombre, string apellido, string correo, string telefono, string contrasena, string direccion, string tipoCuenta)
         {
             try
             {
                 string mensaje = "";
-                if (_db.usuario.Any(u => u.email == correo))
+                if (db.usuario.Any(u => u.email == correo))
                     return Json(new { exito = false, mensaje = "El correo ya está registrado." });
 
-                if (_db.usuario.Any(u => u.usuarioid == usuarioId))
+                if (db.usuario.Any(u => u.usuarioid == usuarioId))
                     return Json(new { exito = false, mensaje = "El número de documento ya está registrado." });
 
                 var usuario = new Usuario
@@ -49,21 +49,31 @@ namespace AquaDriveSP.Controllers
                     email = correo,
                     telefono = telefono,
                     contrasena = contrasena,
+                    direccion = direccion,
                     fechacreacion = DateTime.Now
                 };
+
+                var geo = new Utilities.Location.Location();
+                var coordenadas = geo.ObtenerCoordenadas(direccion);
 
                 // Crear tipo de cuenta según selección
                 switch (tipoCuenta.ToLower())
                 {
                     case "cliente":
-                        _db.usuario.Add(usuario);
-                        _db.cliente.Add(new Cliente { usuarioid = usuario.usuarioid });
+                        db.usuario.Add(usuario);
+                        var cliente = new Cliente
+                        {
+                            usuarioid = usuario.usuarioid,
+                            latitud = (double)(coordenadas?.lat),
+                            longitud = (double)(coordenadas?.lng)
+                        };
+                        db.cliente.Add(cliente);
                         mensaje = "Usuario registrado correctamente.";
                         break;
 
                     case "empleado":
-                        _db.usuario.Add(usuario);
-                        _db.empleado.Add(new Empleado
+                        db.usuario.Add(usuario);
+                        db.empleado.Add(new Empleado
                         {
                             usuarioid = usuario.usuarioid,
                             sedeid = 0, // temporal, se puede actualizar
@@ -73,8 +83,8 @@ namespace AquaDriveSP.Controllers
                         break;
 
                     case "admin":
-                        _db.usuario.Add(usuario);
-                        _db.administrador.Add(new Administrador
+                        db.usuario.Add(usuario);
+                        db.administrador.Add(new Administrador
                         {
                             usuarioid = usuario.usuarioid
                         });
@@ -85,7 +95,7 @@ namespace AquaDriveSP.Controllers
                         return Json(new { exito = false, mensaje = "Tipo de cuenta inválido." });
                 }
 
-                _db.SaveChanges();
+                db.SaveChanges();
                 return Json(new { exito = true, mensaje = mensaje });
             }
             catch (Exception ex)
@@ -100,7 +110,7 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
-                var usuario = _db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId);
+                var usuario = db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId);
 
                 if (usuario == null)
                 {
@@ -115,7 +125,7 @@ namespace AquaDriveSP.Controllers
                 string rol;
 
                 // Cliente
-                var cliente = _db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
+                var cliente = db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
                 if (cliente != null)
                 {
                     rol = "Cliente";
@@ -123,6 +133,14 @@ namespace AquaDriveSP.Controllers
                     // Guardar rol en Session (opcional)
                     Session["UsuarioId"] = usuario.usuarioid;
                     Session["Rol"] = rol;
+                    var vehiculos = db.vehiculo
+                        .Where(v => v.cliente.usuarioid == usuario.usuarioid)
+                        .Select(v => new
+                        {
+                            v.placa
+                        })
+                        .ToList();
+                    Session["HasVehicle"] = vehiculos.Count > 0 ? true : false;
                     return Json(new
                     {
                         exito = true,
@@ -133,7 +151,7 @@ namespace AquaDriveSP.Controllers
                 }
 
                 // Empleado
-                var empleado = _db.empleado.FirstOrDefault(e => e.usuarioid == usuario.usuarioid);
+                var empleado = db.empleado.FirstOrDefault(e => e.usuarioid == usuario.usuarioid);
                 if (empleado != null)
                 {
                     if (empleado.estado != 1)
@@ -154,7 +172,7 @@ namespace AquaDriveSP.Controllers
                 }
 
                 // Administrador
-                var admin = _db.administrador.FirstOrDefault(a => a.usuarioid == usuario.usuarioid);
+                var admin = db.administrador.FirstOrDefault(a => a.usuarioid == usuario.usuarioid);
                 if (admin != null)
                 {
                     rol = "Admin";
@@ -183,13 +201,13 @@ namespace AquaDriveSP.Controllers
         [HttpPost]
         public ActionResult RecuperarContrasena(long usuarioId, string correo)
         {
-            var usuario = _db.usuario.FirstOrDefault(u => u.email == correo && u.usuarioid == usuarioId);
+            var usuario = db.usuario.FirstOrDefault(u => u.email == correo && u.usuarioid == usuarioId);
             if (usuario == null)
                 return Json(new { exito = false, mensaje = "Correo no registrado." });
 
             string nuevaContrasena = GenerarContrasenaAleatoria();
             usuario.contrasena = nuevaContrasena;
-            _db.SaveChanges();
+            db.SaveChanges();
 
             try
             {

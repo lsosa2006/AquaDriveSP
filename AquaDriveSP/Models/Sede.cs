@@ -14,6 +14,8 @@ namespace AquaDriveSP.Models
         public string nombre { get; set; }
         public string direccion { get; set; }
         public string telefono { get; set; }
+        public double latitud { get; set; }
+        public double longitud { get; set; }
 
         public virtual ICollection<Empleado> empleados { get; set; }
         public virtual ICollection<Cita> citas { get; set; }
