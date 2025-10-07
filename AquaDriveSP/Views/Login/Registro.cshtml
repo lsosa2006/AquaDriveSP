@@ -24,11 +24,10 @@
 
         .registro-box {
             background-color: #13007c; /* mismo color de login */
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.3);
             width: 450px; /* más angosto */
-            min-height: 500px; /* más compacto */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -48,11 +47,11 @@
         }
 
         .registro-box input {
-            width: 75%;
-            padding: 10px;
-            margin-bottom: 12px;
+            width: 70%;
+            padding: 8px;
+            margin-bottom: 10px;
             border: none;
-            border-radius: 30px;
+            border-radius: 25px;
             outline: none;
             font-size: 14px;
             text-align: center;
@@ -112,6 +111,18 @@
         .login-link a:hover {
             text-decoration: underline;
         }
+        .texto-opcional {
+            display: block;
+            color: #b30000; /* rojo suave */
+            font-size: 11px; /* pequeño */
+            margin-top: -10px; /* más cerca del input */
+            margin-bottom: 10px; /* mantiene espacio con el siguiente campo */
+            text-align: left;
+            width: 70%;
+            padding: 8px;
+            text-align: center;
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -123,8 +134,9 @@
             <input type="text" id="apellido" name="apellido" required placeholder="Apellido" />
             <input type="email" id="correo" name="correo" required placeholder="Correo electrónico" />
             <input type="text" id="telefono" name="telefono" required placeholder="Teléfono" />
-            <input type="text" id="direccion" name="direccion" required placeholder="Direccion" />
             <input type="password" id="contrasena" name="contrasena" required placeholder="Contraseña" />
+            <input type="text" id="direccion" name="direccion" placeholder="Direccion" />
+            <small class="texto-opcional">* Opcional para empleados</small>
 
             <div class="tipo-cuenta">
                 <span>Tipo de cuenta</span>

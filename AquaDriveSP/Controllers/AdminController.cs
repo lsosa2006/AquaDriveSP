@@ -473,6 +473,11 @@ namespace AquaDriveSP.Controllers
                 sede.direccion = sedeActualizada.direccion;
                 sede.telefono = sedeActualizada.telefono;
 
+                var geo = new Utilities.Location.Location();
+                var coordenadas = geo.ObtenerCoordenadas(sede.direccion);
+                sede.latitud = coordenadas.lat;
+                sede.longitud = coordenadas.lng;
+
                 db.SaveChanges();
                 return Json(new { success = true, message = "Sede actualizada con éxito" });
             }

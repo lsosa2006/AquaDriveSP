@@ -53,20 +53,19 @@ namespace AquaDriveSP.Controllers
                     fechacreacion = DateTime.Now
                 };
 
-                var geo = new Utilities.Location.Location();
-                var coordenadas = geo.ObtenerCoordenadas(direccion);
-
                 // Crear tipo de cuenta según selección
                 switch (tipoCuenta.ToLower())
                 {
                     case "cliente":
-                        db.usuario.Add(usuario);
+                        var geo = new Utilities.Location.Location();
+                        var coordenadas = geo.ObtenerCoordenadas(direccion);
                         var cliente = new Cliente
                         {
                             usuarioid = usuario.usuarioid,
                             latitud = (double)(coordenadas?.lat),
                             longitud = (double)(coordenadas?.lng)
                         };
+                        db.usuario.Add(usuario);
                         db.cliente.Add(cliente);
                         mensaje = "Usuario registrado correctamente.";
                         break;

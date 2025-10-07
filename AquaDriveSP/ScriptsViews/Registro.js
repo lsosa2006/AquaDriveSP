@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (!direccion || !regexDireccion.test(direccion)) {
+        if (tipoCuenta === "cliente" && (!direccion || !regexDireccion.test(direccion))) {
             Swal.fire("Error", "Ingresa una dirección válida (mínimo 5 caracteres, letras, números y símbolos , . # -).", "error");
             return;
         }
@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
             Swal.fire("Error", "Selecciona un tipo de cuenta.", "error");
             return;
         }
-
         // Mostrar spinner modal
         const spinnerModal = new bootstrap.Modal(document.getElementById('spinnerModal'));
         spinnerModal.show();
