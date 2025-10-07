@@ -48,7 +48,7 @@
         <div class="mb-3">
             <label for="vehiculo" class="form-label">Seleccionar Vehículo</label>
             <select id="vehiculo" name="vehiculo" class="form-select">
-                <option value="">Seleccione...</option>
+                <option value="0">:: Por seleccionar ::</option>
                 @foreach (var v in Model.Vehiculos)
                 {
                     <option value="@v.placa">@v.placa</option>
@@ -59,7 +59,7 @@
         <div class="mb-3">
             <label for="sede" class="form-label">Seleccionar Sede</label>
             <select id="sede" name="sede" class="form-select">
-                <option value="">Seleccione...</option>
+                <option value="0">:: Por seleccionar ::</option>
                 @foreach (var s in Model.Sedes)
                 {
                     <option value="@s.sedeid">@s.nombre</option>
@@ -70,7 +70,7 @@
         <div class="mb-3">
             <label for="tipoServicio" class="form-label">Seleccionar Tipo de Servicio</label>
             <select id="tipoServicio" name="tipoServicio" class="form-select">
-                <option value="">Seleccione...</option>
+                <option value="0">:: Por seleccionar ::</option>
                 @foreach (var t in Model.TiposServicios)
                 {
                     <option value="@t.tiposervicioid">@t.nombre</option>
@@ -81,7 +81,7 @@
         <div class="mb-3">
             <label for="empleado" class="form-label">Seleccionar Empleado</label>
             <select id="empleado" name="empleado" class="form-select">
-                <option value="">Seleccione...</option>
+                <option value="0">:: Por seleccionar ::</option>
                 @foreach (var e in Model.Empleados)
                 {
                     <option value="@e.empleadoid">@e.usuario.nombre @e.usuario.apellido</option>

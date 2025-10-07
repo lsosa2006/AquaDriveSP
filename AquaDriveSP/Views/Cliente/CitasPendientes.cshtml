@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "Mis Citas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .citas-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+            .citas-container h2 {
+                text-align: center;
+                margin-bottom: 25px;
+                color: #003366;
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #003366;
+        }
+
+        .btn-cancelar {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-cancelar:hover {
+                background-color: #e60000;
+                color: white;
+            }
+
+        .filtro-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+            .filtro-container input {
+                max-width: 200px;
+            }
+    </style>
+}
+
+<div class="citas-container">
+    <h2>Mis Citas Pendientes</h2>
+
+    <div class="filtro-container">
+        <input type="text" id="filtro-estado" class="form-control" placeholder="Filtrar por estado">
+        <input type="date" id="filtro-fecha" class="form-control">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-citas align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Placa</th>
+                    <th>Fecha y Hora</th>
+                    <th>Sede</th>
+                    <th>Tipo de Servicio</th>
+                    <th>Empleado</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las citas se llenarán con JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const tbody = document.querySelector(".table-citas tbody");
+            const filtroEstado = document.getElementById("filtro-estado");
+            const filtroFecha = document.getElementById("filtro-fecha");
+
+            function cargarCitas() {
+                const estado = filtroEstado.value;
+                const fecha = filtroFecha.value;
+
+                $.ajax({
+                    url: "/Cliente/GetMisCitas",
+                    method: "GET",
+                    data: { estado, fecha },
+                    success: function (data) {
+                        tbody.innerHTML = "";
+
+                        if (data.success) {
+                            if (data.citas.length === 0) {
+                                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No hay citas</td></tr>`;
+                                return;
+                            }
+
+                            data.citas.forEach(cita => {
+                                const fechaHora = new Date(cita.fechahorainicio);
+                                const ahora = new Date();
+                                const horaLimiteCancel = new Date(fechaHora.getTime() - 60 * 60 * 1000); // 1 hora antes
+
+                                let btnCancelar = '';
+                                if (cita.estado === "Pendiente" && ahora <= horaLimiteCancel) {
+                                    btnCancelar = `<button class="btn btn-cancelar btn-sm btn-cancelar-cita" data-id="${cita.citaid}">Cancelar</button>`;
+                                }
+
+                                tbody.innerHTML += `
+                                        <tr>
+                                            <td>${cita.placa}</td>
+                                            <td>${fechaHora.toLocaleString()}</td>
+                                            <td>${cita.sede}</td>
+                                            <td>${cita.tipoServicio}</td>
+                                            <td>${cita.empleado}</td>
+                                            <td>${cita.estado}</td>
+                                            <td>${btnCancelar}</td>
+                                        </tr>
+                                    `;
+                            });
+                        } else {
+                            Swal.fire("Error", data.message, "error");
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Error", "No se pudieron cargar las citas.", "error");
+                    }
+                });
+            }
+
+            // Filtrado
+            filtroEstado.addEventListener("keyup", cargarCitas);
+            filtroFecha.addEventListener("change", cargarCitas);
+
+            // Cancelar cita
+            tbody.addEventListener("click", function (e) {
+                if (e.target.classList.contains("btn-cancelar-cita")) {
+                    const citaId = e.target.dataset.id;
+
+                    Swal.fire({
+                        title: "¿Cancelar cita?",
+                        text: "Esta acción no se puede deshacer.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Sí, cancelar",
+                        cancelButtonText: "No",
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            cancelButton: 'btn btn-danger'
+                        },
+                        buttonsStyling: false
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "/Cliente/CancelarCita",
+                                method: "POST",
+                                data: { citaId },
+                                success: function (res) {
+                                    if (res.success) {
+                                        Swal.fire("Cancelada", res.mensaje, "success");
+                                        cargarCitas();
+                                    } else {
+                                        Swal.fire("Error", res.mensaje, "error");
+                                    }
+                                },
+                                error: function () {
+                                    Swal.fire("Error", "No se pudo cancelar la cita.", "error");
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Inicial
+            cargarCitas();
+        });
+    </script>
+}
