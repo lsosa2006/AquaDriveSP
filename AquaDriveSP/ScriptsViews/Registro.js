@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
         const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const regexTelefono = /^[0-9]{10}$/;
-        const regexDireccion = /^[a-zA-Z0-9\s.,#-]{5,}$/;
+        /*const regexDireccion = /^[a-zA-Z0-9\s.,#-]{5,}$/;*/
+        const regexDireccion = /^(?=.*\p{L})(?=.*\d)[\p{L}\d\s.,#-]{5,}$/u;
         // Validaciones
         if (!usuarioId || isNaN(usuarioId)) {
             Swal.fire("Error", "El documento debe ser un número válido.", "error");

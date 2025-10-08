@@ -327,6 +327,7 @@ namespace AquaDriveSP.Controllers
         {
             try
             {
+                var fechaFinRango = fechaFin.AddDays(1).AddTicks(-1);
                 // Autos lavados por empleado
                 var autosPorEmpleado = db.empleado
                     .Select(emp => new
@@ -335,7 +336,7 @@ namespace AquaDriveSP.Controllers
                         Cantidad = emp.citas
                             .Count(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
-                                        c.fechahorafin <= fechaFin)
+                                        c.fechahorafin <= fechaFinRango)
                     })
                     .Where(x => x.Cantidad > 0)
                     .ToList();
@@ -349,7 +350,7 @@ namespace AquaDriveSP.Controllers
                         Cantidad = s.citas
                             .Count(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
-                                        c.fechahorafin <= fechaFin)
+                                        c.fechahorafin <= fechaFinRango)
                     })
                     .Where(x => x.Cantidad > 0)
                     .ToList();
@@ -363,11 +364,11 @@ namespace AquaDriveSP.Controllers
                         Cantidad = ts.citas
                             .Count(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
-                                        c.fechahorafin <= fechaFin),
+                                        c.fechahorafin <= fechaFinRango),
                         Total = ts.citas
                             .Where(c => c.estado == 3 &&
                                         c.fechahorafin >= fechaInicio &&
-                                        c.fechahorafin <= fechaFin)
+                                        c.fechahorafin <= fechaFinRango)
                             .Select(c => (decimal?)c.tiposervicio.precio)
                             .DefaultIfEmpty(0)
                             .Sum() ?? 0

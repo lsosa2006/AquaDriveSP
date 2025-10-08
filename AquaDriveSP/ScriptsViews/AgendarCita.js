@@ -13,6 +13,7 @@
         empleadoSelect.html('<option value="0">:: Por seleccionar ::</option>');
 
         if (!sedeId) return;
+        if (sedeId === 0) return;
 
         $.ajax({
             url: "/Cliente/GetEmpleadosPorSede",
@@ -128,7 +129,7 @@
                                 form[0].reset();
                                 fechaInput.removeClass("is-valid is-invalid");
                                 horaInput.removeClass("is-valid is-invalid");
-                                empleadoSelect.html('<option value="">Seleccione...</option>');
+                                empleadoSelect.html('<option value="0">:: Por seleccionar ::</option>');
                             });
                         } else {
                             Swal.fire("Error", res.mensaje, "error");

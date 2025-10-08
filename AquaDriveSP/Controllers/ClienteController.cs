@@ -190,8 +190,8 @@ namespace AquaDriveSP.Controllers
             }
         }
 
-        [HttpGet]
-        public JsonResult GetMisCitas(int[] estados)
+        [HttpPost]
+        public JsonResult GetMisCitas(int[] estados)//Reutilizar funcion desde mis citas enviando estado 1 y 2 y de historial enviando estado 0 y 3
         {
             try
             {
@@ -203,17 +203,17 @@ namespace AquaDriveSP.Controllers
                     return Json(new { success = false, message = "Cliente no encontrado." }, JsonRequestBehavior.AllowGet);
 
                 var citas = db.cita
-                    .Where(c => c.clienteid == cliente.clienteid && (c.estado == estados[0] || c.estado == estados[1]))
+                    .Where(c => c.clienteid == cliente.clienteid && estados.Contains(c.estado))
                     .Select(c => new
                     {
                         CitaId = c.citaid,
-                        PLaca = c.placa,
+                        Placa = c.placa,
                         FechaHoraInicio = c.fechahorainicio,
                         Sede = c.sede.nombre,
                         TipoServicio = c.tiposervicio.nombre,
                         Empleado = c.empleadoid != null ? c.empleado.usuario.nombre + " " + c.empleado.usuario.apellido : "-",
                         Estado = c.estado == 1 ? "Pendiente" : (c.estado == 2 ? "En curso" : c.estado == 3 ? "Finalizada" : "Cancelada")
-                    });
+                    }).ToList();
 
                 return Json(new { success = true, citas = citas.OrderBy(c => c.FechaHoraInicio).ToList() }, JsonRequestBehavior.AllowGet);
             }

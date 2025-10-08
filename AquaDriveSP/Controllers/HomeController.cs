@@ -17,9 +17,9 @@ namespace AquaDriveSP.Controllers
     {
         private readonly AppDbContext db = new AppDbContext();
 
-
         public ActionResult Dashboard()
         {
+            ActualizarCitasVencidas();
             string rol = Session["Rol"]?.ToString() ?? "Invitado";
             var vm = new DashboardViewModel
             {
@@ -164,7 +164,7 @@ namespace AquaDriveSP.Controllers
             else if (rol == "Cliente")
             {
                 var clienteId = (long)Session["UsuarioId"];
-                var cliente = db.cliente.FirstOrDefault(c => c.usuarioid == clienteId);
+                var cliente = db.cliente.FirstOrDefault(c => c.usuario.usuarioid == clienteId);
 
                 var clienteVm = new DashboardClienteViewModel();
 
@@ -187,7 +187,7 @@ namespace AquaDriveSP.Controllers
 
                     // --- Próxima cita programada ---
                     clienteVm.ProximaCita = db.cita
-                        .Where(c => c.clienteid == cliente.clienteid && c.estado == 1 && c.fechahorainicio > DateTime.Now)
+                        .Where(c => c.clienteid == cliente.clienteid && c.estado == 1)
                         .OrderBy(c => c.fechahorainicio)
                         .Select(c => new CitaClienteCard
                         {
@@ -223,6 +223,8 @@ namespace AquaDriveSP.Controllers
                             clienteVm.LatitudSede = sedeCercana.latitud;
                             clienteVm.LongitudSede = sedeCercana.longitud;
                             clienteVm.DistanciaSedeKm = sedeCercana.Distancia;
+                            clienteVm.LatitudCliente = cliente.latitud;
+                            clienteVm.LongitudCliente = cliente.longitud;
                         }
                     }
                 }
@@ -231,6 +233,34 @@ namespace AquaDriveSP.Controllers
 
             ViewBag.Rol = rol;
             return View(vm);
+        }
+
+        public void ActualizarCitasVencidas()
+        {
+            try
+            {
+                var ahora = DateTime.Now;
+
+                // Buscar citas con estado = 1 (pendiente) y fecha/hora pasada
+                var citasVencidas = db.cita
+                    .Where(c => c.estado == 1 && c.fechahorainicio.AddHours(1) < ahora)
+                    .ToList();
+
+                if (citasVencidas.Any())
+                {
+                    foreach (var cita in citasVencidas)
+                    {
+                        cita.estado = 0; // 0 = cancelada o vencida
+                    }
+
+                    db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Puedes registrar el error si usas logs
+                Console.WriteLine($"Error actualizando citas vencidas: {ex.Message}");
+            }
         }
     }
 }

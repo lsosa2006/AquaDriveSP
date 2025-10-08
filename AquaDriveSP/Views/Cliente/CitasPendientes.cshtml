@@ -37,29 +37,25 @@
                 color: white;
             }
 
-        .filtro-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
+        .search {
+            border-radius: 10px;
+            border: 1px solid #00cfff;
         }
-
-            .filtro-container input {
-                max-width: 200px;
-            }
     </style>
 }
 
 <div class="citas-container">
     <h2>Mis Citas Pendientes</h2>
 
-    <div class="filtro-container">
-        <input type="text" id="filtro-estado" class="form-control" placeholder="Filtrar por estado">
-        <input type="date" id="filtro-fecha" class="form-control">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <input type="text" id="buscador" class="form-control search me-3 flex-grow-1" placeholder="Buscar...">
+        </div>
     </div>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover table-citas align-middle">
-            <thead class="table-light">
+            <thead class="table-light text-center">
                 <tr>
                     <th>Placa</th>
                     <th>Fecha y Hora</th>
@@ -71,7 +67,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Las citas se llenarán con JS -->
+                <!-- Se llenará con JS -->
             </tbody>
         </table>
     </div>
@@ -81,51 +77,42 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const tbody = document.querySelector(".table-citas tbody");
-            const filtroEstado = document.getElementById("filtro-estado");
-            const filtroFecha = document.getElementById("filtro-fecha");
+            const buscador = document.getElementById("buscador");
 
             function cargarCitas() {
-                const estado = filtroEstado.value;
-                const fecha = filtroFecha.value;
-
                 $.ajax({
                     url: "/Cliente/GetMisCitas",
-                    method: "GET",
-                    data: { estado, fecha },
+                    method: "POST",
+                    data: { estados: [1, 2] }, // Pendiente y En curso
                     success: function (data) {
                         tbody.innerHTML = "";
 
-                        if (data.success) {
-                            if (data.citas.length === 0) {
-                                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No hay citas</td></tr>`;
-                                return;
+                        if (!data.success || data.citas.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No hay citas</td></tr>`;
+                            return;
+                        }
+
+                        data.citas.forEach(cita => {
+                            const timestamp = parseInt(cita.FechaHoraInicio.replace(/[^0-9]/g, ""));
+                            const fechaHora = new Date(timestamp);
+
+                            let btnCancelar = '';
+                            if (cita.Estado === "Pendiente") {
+                                btnCancelar = `<button class="btn btn-cancelar btn-sm btn-cancelar-cita" data-id="${cita.CitaId}">Cancelar</button>`;
                             }
 
-                            data.citas.forEach(cita => {
-                                const fechaHora = new Date(cita.fechahorainicio);
-                                const ahora = new Date();
-                                const horaLimiteCancel = new Date(fechaHora.getTime() - 60 * 60 * 1000); // 1 hora antes
-
-                                let btnCancelar = '';
-                                if (cita.estado === "Pendiente" && ahora <= horaLimiteCancel) {
-                                    btnCancelar = `<button class="btn btn-cancelar btn-sm btn-cancelar-cita" data-id="${cita.citaid}">Cancelar</button>`;
-                                }
-
-                                tbody.innerHTML += `
-                                        <tr>
-                                            <td>${cita.placa}</td>
-                                            <td>${fechaHora.toLocaleString()}</td>
-                                            <td>${cita.sede}</td>
-                                            <td>${cita.tipoServicio}</td>
-                                            <td>${cita.empleado}</td>
-                                            <td>${cita.estado}</td>
-                                            <td>${btnCancelar}</td>
-                                        </tr>
-                                    `;
-                            });
-                        } else {
-                            Swal.fire("Error", data.message, "error");
-                        }
+                            tbody.innerHTML += `
+                                    <tr>
+                                        <td>${cita.Placa}</td>
+                                        <td>${fechaHora.toLocaleString('es-CO')}</td>
+                                        <td>${cita.Sede}</td>
+                                        <td>${cita.TipoServicio}</td>
+                                        <td>${cita.Empleado}</td>
+                                        <td>${cita.Estado}</td>
+                                        <td class="text-center">${btnCancelar}</td>
+                                    </tr>
+                                `;
+                        });
                     },
                     error: function () {
                         Swal.fire("Error", "No se pudieron cargar las citas.", "error");
@@ -133,9 +120,16 @@
                 });
             }
 
-            // Filtrado
-            filtroEstado.addEventListener("keyup", cargarCitas);
-            filtroFecha.addEventListener("change", cargarCitas);
+            // Filtrado por cualquier columna
+            buscador.addEventListener("input", function () {
+                const filtro = this.value.toLowerCase();
+                const filas = tbody.querySelectorAll("tr");
+
+                filas.forEach(tr => {
+                    const textoFila = tr.innerText.toLowerCase();
+                    tr.style.display = textoFila.includes(filtro) ? "" : "none";
+                });
+            });
 
             // Cancelar cita
             tbody.addEventListener("click", function (e) {
@@ -177,7 +171,7 @@
                 }
             });
 
-            // Inicial
+            // Carga inicial
             cargarCitas();
         });
     </script>

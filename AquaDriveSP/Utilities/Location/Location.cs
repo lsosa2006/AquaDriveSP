@@ -14,18 +14,22 @@ namespace AquaDriveSP.Utilities.Location
 
         public Location ObtenerCoordenadas(string direccion)
         {
-            string apiKey = "TU_API_KEY";
-            string url = $"https://maps.googleapis.com/maps/api/geocode/json?address={Uri.EscapeDataString(direccion)}&key={apiKey}";
+            // URL de Nominatim (OpenStreetMap)
+            string url = $"https://nominatim.openstreetmap.org/search?format=json&q={Uri.EscapeDataString(direccion)}";
 
             using (WebClient wc = new WebClient())
             {
+                // Es obligatorio incluir un User-Agent para evitar bloqueos del servidor
+                wc.Headers.Add("User-Agent", "AquaDriveSP/1.0 (contacto@tucorreo.com)");
+
                 var json = wc.DownloadString(url);
                 var js = new JavaScriptSerializer();
-                dynamic data = js.Deserialize<dynamic>(json);
-                if (data["status"] == "OK")
+                var data = js.Deserialize<List<dynamic>>(json);
+
+                if (data != null && data.Count > 0)
                 {
-                    double lat = data["results"][0]["geometry"]["location"]["lat"];
-                    double lng = data["results"][0]["geometry"]["location"]["lng"];
+                    double lat = Convert.ToDouble(data[0]["lat"], System.Globalization.CultureInfo.InvariantCulture);
+                    double lng = Convert.ToDouble(data[0]["lon"], System.Globalization.CultureInfo.InvariantCulture);
                     return new Location { lat = lat, lng = lng };
                 }
                 else

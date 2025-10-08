@@ -1,4 +1,11 @@
-﻿@model AquaDriveSP.ViewModels.DashboardViewModel
+﻿
+@model AquaDriveSP.ViewModels.DashboardViewModel
+@{
+    var distanciaFormateada = Model.ClienteData?.DistanciaSedeKm != null
+    ? Model.ClienteData.DistanciaSedeKm.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+    : "N/A";
+    var hasVehicle = Session["HasVehicle"] != null && (bool)Session["HasVehicle"];
+}
 
 
 @{
@@ -74,6 +81,15 @@
 
         a.btn {
             align-self: flex-start;
+        }
+        .texto-opcional {
+            display: block;
+            color: #b30000; /* rojo suave */
+            font-size: 11px; /* pequeño */
+            margin-bottom: 6px; /* mantiene espacio con el siguiente campo */
+            text-align: left;
+            width: 70%;
+            padding: 8px;
         }
     </style>
 }
@@ -197,8 +213,8 @@
                     {
                         <li>
                             <strong>@c.Sede</strong> - @c.Servicio
-                            (<span>@c.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm")</span>)
-                        </li>
+                            (<span>@c.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm") -  @c.FechaHoraFin.ToString("HH:mm")</span>)
+</li>
                     }
                 </ul>
             }
@@ -207,24 +223,40 @@
                 <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> No tienes citas finalizadas aún.</p>
             }
 
-            <a href="@Url.Action("ReservarCita", "Citas")" class="btn btn-success mt-2">Reservar nueva cita</a>
-            <a href="@Url.Action("HistorialCitas", "Citas")" class="btn btn-info mt-2">Ver historial completo</a>
+        <div class="text-start">
+            <a href="@(hasVehicle ? Url.Action("AgendarCita", "Cliente") : "#")"
+               class="btn btn-success mt-2"
+               style="max-width: 250px; display:block; margin:0 auto;">Reservar nueva cita</a>
+
+            <a href="@(hasVehicle ? Url.Action("CitasPendientes", "Cliente") : "#")"
+               class="btn btn-info mt-2"
+               style="max-width: 250px; display:block; margin:0 auto;">Ver historial completo</a>
+        </div>
+            @if (!hasVehicle){ <small class="texto-opcional">Debes registrar un vehículo para utilizar estos apartados</small> }
         </div>
 
         <div class="card card-right flex-fill text-center">
             <h3>Sede más cercana</h3>
             @if (!string.IsNullOrEmpty(Model.ClienteData.SedeMasCercana))
             {
-                <p><strong>@Model.ClienteData.SedeMasCercana</strong> (a @Model.ClienteData.DistanciaSedeKm:F2 km)</p>
-                <a target="_blank" href="https://www.google.com/maps?q=@Model.ClienteData.LatitudSede,@Model.ClienteData.LongitudSede">
-                    <img class="img-fluid rounded"
-                         src="https://maps.googleapis.com/maps/api/staticmap?center=@Model.ClienteData.LatitudSede,@Model.ClienteData.LongitudSede&zoom=15&size=600x300&markers=color:red%7C@Model.ClienteData.LatitudSede,@Model.ClienteData.LongitudSede&key=TU_API_KEY"
-                         alt="Mapa de la sede más cercana" />
+                <p><strong>@Model.ClienteData.SedeMasCercana</strong> (a @distanciaFormateada km)</p>
+                <div id="map" style="height: 300px; border-radius: 10px;"></div>
+
+                <a href="https://www.google.com/maps?q=@Model.ClienteData.LatitudSede.ToString(System.Globalization.CultureInfo.InvariantCulture),@Model.ClienteData.LongitudSede.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                   target="_blank"
+                   class="btn btn-outline-primary"
+                   style="max-width: 250px; display: block; margin: 15px auto 0 auto;">
+                    📍 Ver en Google Maps
                 </a>
+
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
             }
             else
             {
-                <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> No se encontró ninguna sede cercana.</p>
+                <p class="text-center text-muted">
+                    <i class="bi bi-exclamation-circle"></i> No se encontró ninguna sede cercana.
+                </p>
             }
         </div>
     }
@@ -336,7 +368,58 @@
         }
         else if(Model.Rol == "Cliente" && Model.ClienteData != null)
         {
+            <text>
+            document.addEventListener("DOMContentLoaded", function () {
+                var lat = @Model.ClienteData.LatitudSede.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                var lon = @Model.ClienteData.LongitudSede.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
+                var map = L.map('map').setView([lat, lon], 15);
+
+                // Capa base de OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+                }).addTo(map);
+
+                 // --- Ícono rojo para la sede ---
+                var sedeIcon = L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // marcador rojo
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 28],
+                    popupAnchor: [0, -25]
+                });
+
+                // --- Marcador de la sede (rojo) ---
+                var sedeMarker = L.marker([lat, lon], { icon: sedeIcon })
+                    .addTo(map)
+                    .bindPopup("<b>@Model.ClienteData.SedeMasCercana</b><br>@distanciaFormateada km de distancia");
+
+                // --- Ícono azul para el cliente ---
+                var clienteIcon = L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 28],
+                    popupAnchor: [0, -25]
+                });
+
+                // --- Marcador del cliente (azul) ---
+                var clienteMarker = L.marker(
+                    [
+                        @Model.ClienteData.LatitudCliente.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        @Model.ClienteData.LongitudCliente.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    ],
+                    { icon: clienteIcon }
+                ).addTo(map)
+                 .bindPopup("<b>Tu ubicación</b>");
+
+                // --- Ajustar el mapa para mostrar ambos ---
+                var group = L.featureGroup([sedeMarker, clienteMarker]);
+                map.fitBounds(group.getBounds().pad(0.3));
+
+                // Abrir popups iniciales
+                clienteMarker.openPopup();
+            });
+            </text>
         }
     </script>
 }

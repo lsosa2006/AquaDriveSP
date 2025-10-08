@@ -13,6 +13,8 @@ namespace AquaDriveSP.ViewModels
         public double LatitudSede { get; set; }
         public double LongitudSede { get; set; }
         public double DistanciaSedeKm { get; set; }
+        public double LatitudCliente { get; set; }
+        public double LongitudCliente { get; set; }
 
         public class CitaClienteCard
         {
