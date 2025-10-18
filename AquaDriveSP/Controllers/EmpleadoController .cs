@@ -69,6 +69,17 @@ namespace AquaDriveSP.Controllers
                 return View();
             }
         }
+
+        public ActionResult EstadisticasDesempeno()
+        {
+            return View();
+        }
+
+        public ActionResult Resenas()
+        {
+            return View();
+        }
+
         #endregion
 
         #region Funciones
@@ -182,6 +193,121 @@ namespace AquaDriveSP.Controllers
                 return Json(new { success = false, message = "Error al cambiar estado: " + ex.Message });
             }
         }
+
+        //ESTADISTICAS
+        //Obtener del desempñeo
+        [HttpGet]
+        public JsonResult GetDesempeno(DateTime? fechaInicio = null, DateTime? fechaFin = null)
+        {
+            try
+            {
+                var empleadoId = (long)Session["UsuarioId"];
+
+                if (fechaInicio == null)
+                    fechaInicio = DateTime.Today.AddDays(-30); // Últimos 30 días por defecto
+
+                if (fechaFin == null)
+                    fechaFin = DateTime.Today.AddDays(1);
+
+                // 🔹 Citas atendidas por fecha
+                var citasPorFecha = db.cita
+                    .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
+                                c.estado == 3 &&
+                                c.fechahorafin >= fechaInicio && c.fechahorafin <= fechaFin)
+                    .ToList()
+                    .GroupBy(c => c.fechahorafin.Value.Date)
+                    .Select(g => new
+                    {
+                        Fecha = g.Key,
+                        Total = g.Count()
+                    })
+                    .OrderBy(g => g.Fecha)
+                    .ToList();
+
+                // 🔹 Distribución por tipo de servicio
+                var servicios = db.cita
+                    .Where(c => c.empleado.usuario.usuarioid == empleadoId &&
+                                c.estado == 3 &&
+                                c.fechahorafin >= fechaInicio && c.fechahorafin <= fechaFin)
+                    .GroupBy(c => c.tiposervicio.nombre)
+                    .Select(g => new
+                    {
+                        TipoServicio = g.Key,
+                        Total = g.Count()
+                    })
+                    .ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    totalCitas = citasPorFecha.Sum(c => c.Total),
+                    citasPorFecha,
+                    servicios
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al obtener desempeño: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetResenas(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? puntuacion = null)
+        {
+            try
+            {
+                var empleadoId = (long)Session["UsuarioId"];
+
+                // 🔹 Traer reseñas del empleado actual
+                var query = db.resena
+                    .Where(r => r.empleado.usuarioid == empleadoId)
+                    .AsQueryable();
+
+                // 🔹 Filtros opcionales
+                if (fechaInicio.HasValue)
+                    query = query.Where(r => r.fechacreacion >= fechaInicio.Value);
+
+                if (fechaFin.HasValue)
+                    query = query.Where(r => r.fechacreacion <= fechaFin.Value);
+
+                if (puntuacion.HasValue)
+                    query = query.Where(r => r.puntuacion == puntuacion.Value);
+
+                // 🔹 Traemos datos a memoria para evitar errores de traducción LINQ a SQL
+                var reseñas = query
+                    .ToList()
+                    .Select(r => new
+                    {
+                        Cliente = (r.cliente != null && r.cliente.usuario != null)
+                            ? $"{r.cliente.usuario.nombre} {r.cliente.usuario.apellido}"
+                            : "Cliente no registrado",
+                        Placa = r.cita?.vehiculo?.placa ?? "N/A",
+                        Fecha = r.fechacreacion.ToString("dd/MM/yyyy"),
+                        Puntuacion = r.puntuacion,
+                        Comentario = string.IsNullOrEmpty(r.descripcion) ? "Sin comentario" : r.descripcion
+                    })
+                    .OrderByDescending(r => r.Fecha)
+                    .ToList();
+
+                // 🔹 Cálculos de promedio y total
+                var total = reseñas.Count;
+                var promedio = total > 0 ? query.Average(r => r.puntuacion) : 0;
+
+                return Json(new
+                {
+                    success = true,
+                    promedio = Math.Round(promedio, 2),
+                    total,
+                    reseñas
+                }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al obtener reseñas: " + ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         #endregion
     }
 }

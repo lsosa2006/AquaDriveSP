@@ -189,10 +189,14 @@
     <Compile Include="Models\Horario.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="ScriptsViews\GestionarVehiculos.js" />
+    <Content Include="ScriptsViews\ResenasCliente.js" />
+    <Content Include="ScriptsViews\ResenasEmpleado.js" />
     <Compile Include="Utilities\Location\GeocodeResult.cs" />
     <Compile Include="Utilities\Location\Geometry.cs" />
     <Compile Include="Utilities\Location\Location.cs" />
     <Compile Include="ViewModels\AgendarCitaViewModelCliente.cs" />
+    <Compile Include="ViewModels\CitaViewModelCliente.cs" />
     <Compile Include="ViewModels\CitaViewModelEmpleado.cs" />
     <Compile Include="ViewModels\DashboardClienteViewModel.cs" />
     <Compile Include="ViewModels\DashboardEmpleadoViewModel.cs" />
@@ -218,6 +222,7 @@
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="ScriptsViews\EditarDatos.js" />
     <Content Include="ScriptsViews\Estadisticas.js" />
+    <Content Include="ScriptsViews\EstadisticasDesempeno.js" />
     <Content Include="ScriptsViews\GestionarAdministrador.js" />
   </ItemGroup>
   <ItemGroup>
@@ -230,6 +235,7 @@
     <Content Include="ScriptsViews\GestionarEmpleado.js" />
     <Content Include="ScriptsViews\GestionarSede.js" />
     <Content Include="ScriptsViews\GestionarServicio.js" />
+    <Content Include="ScriptsViews\HistorialCitasCliente.js" />
     <Content Include="ScriptsViews\IniciarSesion.js" />
     <Content Include="ScriptsViews\RecuperarContrasena.js" />
     <Content Include="ScriptsViews\Registro.js" />
@@ -277,6 +283,11 @@
     <Content Include="Views\Empleado\Horario.cshtml" />
     <Content Include="Views\Cliente\AgendarCita.cshtml" />
     <Content Include="Views\Cliente\CitasPendientes.cshtml" />
+    <Content Include="Views\Empleado\EstadisticasDesempeno.cshtml" />
+    <Content Include="Views\Empleado\Resenas.cshtml" />
+    <Content Include="Views\Cliente\GestionarVehiculos.cshtml" />
+    <Content Include="Views\Cliente\HistorialCitas.cshtml" />
+    <Content Include="Views\Cliente\Resenas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
