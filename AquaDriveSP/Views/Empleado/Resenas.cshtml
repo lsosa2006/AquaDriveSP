@@ -1,0 +1,134 @@
+﻿@{
+    ViewBag.Title = "Reseñas de Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .empleado-container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+            .empleado-container h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                font-weight: bold;
+            }
+
+        .filtros-container label {
+            font-weight: 500;
+        }
+
+        .table-responsive {
+            max-height: 700px;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+
+        .table thead {
+            background-color: #b3e0ff;
+        }
+
+        .btn-filtrar {
+            background-color: #00cfff;
+            color: white;
+            border: none;
+        }
+
+            .btn-filtrar:hover {
+                background-color: #00b5e6;
+                color: white;
+            }
+
+        .card {
+            border: none;
+            background: white;
+            border-radius: 10px;
+        }
+
+        #sinDatos {
+            font-weight: 500;
+        }
+    </style>
+}
+
+<div class="empleado-container">
+    <h2>⭐ Reseñas Recibidas</h2>
+
+    <!-- 🔹 Filtros -->
+    <div class="row filtros-container mb-3 justify-content-center">
+        <div class="col-md-3">
+            <label>Desde:</label>
+            <input type="date" id="fechaInicio" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>Hasta:</label>
+            <input type="date" id="fechaFin" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>Puntuación:</label>
+            <select id="puntuacion" class="form-control">
+                <option value="">Todas</option>
+                <option value="5">5 estrellas</option>
+                <option value="4">4 estrellas</option>
+                <option value="3">3 estrellas</option>
+                <option value="2">2 estrellas</option>
+                <option value="1">1 estrella</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button id="btnFiltrar" class="btn btn-filtrar w-100">Filtrar</button>
+        </div>
+    </div>
+
+    <!-- 🔹 Resumen -->
+    <div id="resumen" class="row text-center mb-4" style="display:none;">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5>⭐ Promedio</h5>
+                <h2 id="lblPromedio">0</h2>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5>📊 Total de Reseñas</h5>
+                <h2 id="lblTotal">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 Tabla de reseñas -->
+    <div id="tablaContainer" class="table-responsive" style="display:none;">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Placa</th>
+                    <th>Fecha</th>
+                    <th>Puntuación</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody id="tablaResenas"></tbody>
+        </table>
+    </div>
+
+    <!-- 🔹 Sin datos -->
+    <div id="sinDatos" class="alert alert-warning text-center" style="display:none;">
+        No se encontraron reseñas en el rango seleccionado.
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/ScriptsViews/ResenasEmpleado.js"></script>
+}

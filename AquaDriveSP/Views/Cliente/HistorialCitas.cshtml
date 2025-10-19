@@ -1,0 +1,137 @@
+﻿@model List<AquaDriveSP.ViewModels.CitaViewModelCliente>
+@{
+    ViewBag.Title = "Historial de Citas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .cliente-container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #e6f7ff;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .cita-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+            .cita-card:hover {
+                transform: scale(1.02);
+            }
+
+        .badge-finalizada {
+            background-color: #28a745;
+        }
+
+        .badge-cancelada {
+            background-color: #dc3545;
+        }
+
+        .btn-calificar {
+            background-color: #00cfff;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        .star {
+            color: #ccc;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+
+            .star.selected {
+                color: gold;
+            }
+    </style>
+}
+
+<div class="cliente-container">
+    <h2>Historial de Citas</h2>
+
+    <div class="row">
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="text-center mt-4">
+                <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                <p>No hay citas finalizadas o canceladas.</p>
+            </div>
+        }
+        else
+        {
+            foreach (var c in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card cita-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Placa: @c.placa</h5>
+                            <p><strong>Fecha:</strong> @c.FechaInicio - @c.FechaFin</p>
+                            <p><strong>Sede:</strong> @c.Sede</p>
+                            <p><strong>Servicio:</strong> @c.TipoServicio</p>
+                            <p><strong>Empleado:</strong> @c.Empleado</p>
+                            <span class="badge @(c.Estado == "Finalizada" ? "badge-finalizada" : "badge-cancelada")">
+                                @c.Estado
+                            </span>
+
+                            <div class="mt-3 text-center">
+                                @if (c.Estado == "Finalizada")
+                                {
+                                    if (c.TieneResena)
+                                    {
+                                        <button class="btn btn-secondary btn-sm" disabled>Ya calificada</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn-calificar" data-citaid="@c.citaid">Calificar</button>
+                                    }
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary btn-sm" disabled>No disponible</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Modal Calificación -->
+<div class="modal fade" id="modalCalificar" tabindex="-1" aria-labelledby="modalCalificarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Calificar Servicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="stars" class="mb-3">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="bi bi-star-fill star" data-value="@i"></i>
+                    }
+                </div>
+                <textarea id="txtDescripcion" class="form-control" rows="3" placeholder="Escribe una observación..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="btnEnviarResena" class="btn btn-success">Enviar</button>
+                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/ScriptsViews/HistorialCitasCliente.js"></script>
+}
