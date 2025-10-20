@@ -84,7 +84,9 @@
             data: vehiculo,
             success: function (response) {
                 if (response.success) {
-                    Swal.fire("Éxito", response.message, "success");
+                    Swal.fire("Éxito", response.message, "success").then(() => {
+                        location.reload();
+                    });
                     $modal.modal("hide");
                     listarVehiculos();
                 } else {
@@ -137,7 +139,9 @@
                     data: { placa: placa },
                     success: function (response) {
                         if (response.success) {
-                            Swal.fire("Eliminado", response.message, "success");
+                            Swal.fire("Eliminado", response.message, "success").then(() => {
+                                location.reload();
+                            });
                             listarVehiculos();
                         } else {
                             Swal.fire("Atención", response.message, "warning");

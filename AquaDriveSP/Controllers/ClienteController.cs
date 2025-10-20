@@ -212,6 +212,12 @@ namespace AquaDriveSP.Controllers
                         return Json(new { success = false, mensaje = "El empleado ya tiene una cita en ese horario." });
                 }
 
+                DateTime hoy = DateTime.Now;
+                if (model.fechahorainicio < hoy)
+                {
+                    return Json(new { success = false, mensaje = "La fecha de inicio no puede ser inferior a la actual." });
+                }
+
                 // Crear cita
                 var cita = new Cita
                 {
@@ -347,6 +353,14 @@ namespace AquaDriveSP.Controllers
 
                 db.vehiculo.Add(vehiculo);
                 db.SaveChanges();
+                var vehiculos = db.vehiculo
+                        .Where(v => v.cliente.usuarioid == usuarioId)
+                        .Select(v => new
+                        {
+                            v.placa
+                        })
+                        .ToList();
+                Session["HasVehicle"] = vehiculos.Count > 0 ? true : false;
 
                 return Json(new { success = true, message = "Vehículo agregado correctamente" });
             }
@@ -396,6 +410,15 @@ namespace AquaDriveSP.Controllers
 
                 db.vehiculo.Remove(vehiculo);
                 db.SaveChanges();
+
+                var vehiculos = db.vehiculo
+                        .Where(v => v.cliente.usuarioid == usuarioId)
+                        .Select(v => new
+                        {
+                            v.placa
+                        })
+                        .ToList();
+                Session["HasVehicle"] = vehiculos.Count > 0 ? true : false;
 
                 return Json(new { success = true, message = "Vehículo eliminado correctamente" });
             }
