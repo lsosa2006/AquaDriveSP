@@ -80,7 +80,19 @@ namespace AquaDriveSP.Controllers
                 usuarioDb.apellido = usuario.apellido;
                 usuarioDb.email = usuario.email;
                 usuarioDb.telefono = usuario.telefono;
-
+                string rol = Session["Rol"].ToString();
+                if(rol == "Cliente")
+                {
+                    usuarioDb.direccion = usuario.direccion;
+                    var geo = new Utilities.Location.Location();
+                    var coordenadas = geo.ObtenerCoordenadas(usuario.direccion);
+                    var cliente = db.cliente.FirstOrDefault(c => c.usuarioid == usuario.usuarioid);
+                    if(cliente != null)
+                    {
+                        cliente.latitud = (double)(coordenadas?.lat ?? cliente.latitud);
+                        cliente.longitud = (double)(coordenadas?.lng ?? cliente.longitud);
+                    }
+                }
                 db.SaveChanges();
 
                 return Json(new { success = true, message = "Datos actualizados correctamente" });

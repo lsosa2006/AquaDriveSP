@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Editar Datos Personales";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var rol = Session["Rol"] != null ? Session["Rol"].ToString() : "Invitado";
 }
 
 @section Styles {
@@ -52,6 +53,13 @@
             <label class="form-label fw-bold" for="telefono">Teléfono</label>
             <input type="tel" class="form-control" id="telefono" value="@Model.telefono" placeholder="Número de contacto" required />
         </div>
+         @if (rol == "Cliente") 
+         { 
+            <div class="mb-3">
+                <label class="form-label fw-bold" for="direccion">Dirección</label>
+                <input type="text" class="form-control" id="direccion" value="@Model.direccion" placeholder="Direccón" required />
+            </div>
+         }
 
         <div class="d-grid gap-2 mt-4">
             <button type="button" class="btn btn-success btn-lg" id="btn-guardar">
@@ -76,5 +84,5 @@
     </div>
 </div>
 @section Scripts {
-    <script src="~/ScriptsViews/EditarDatos.js"></script>
+    <script src="~/ScriptsViews/Cuenta/EditarDatos.js"></script>
 }

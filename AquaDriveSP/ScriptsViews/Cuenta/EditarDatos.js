@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const apellido = document.getElementById("apellido");
         const email = document.getElementById("email");
         const telefono = document.getElementById("telefono");
+        const direccion = document.getElementById("direccion");
 
         // Validaciones
         if (!nombre.value.trim()) {
@@ -39,6 +40,15 @@ document.addEventListener("DOMContentLoaded", function () {
             telefono.classList.add("is-invalid");
         } else telefono.classList.remove("is-invalid");
 
+        const regexDireccion = /^(?=.*\p{L})(?=.*\d)[\p{L}\d\s.#-]{5,},\s*\p{L}+$/u;
+        if (direccion !== null) {
+            if (!direccion.value || !regexDireccion.test(direccion.value)) {
+                valid = false;
+                errors.push("Ingresa una dirección válida (mínimo 5 caracteres, debe incluir letras, números y terminar con ', Ciudad'). Ejemplo: Calle 10 #25-30, Medellín.");
+                direccion.classList.add("is-invalid");
+            } else direccion.classList.remove("is-invalid");
+        }
+
         if (!valid) {
             Swal.fire({
                 icon: "error",
@@ -57,6 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
             email: email.value.trim(),
             telefono: telefono.value.trim()
         };
+        if (direccion !== null) {
+            usuario.direccion = direccion.value.trim();
+        }
 
         // Llamado AJAX
         spinnerModal.show();

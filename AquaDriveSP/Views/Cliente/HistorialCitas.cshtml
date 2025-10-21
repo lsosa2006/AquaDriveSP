@@ -122,7 +122,7 @@
                         <i class="bi bi-star-fill star" data-value="@i"></i>
                     }
                 </div>
-                <textarea id="txtDescripcion" class="form-control" rows="3" placeholder="Escribe una observación..."></textarea>
+                <textarea id="txtDescripcion" class="form-control" rows="3" maxlength="30" placeholder="Escribe una observación..."></textarea>
             </div>
             <div class="modal-footer">
                 <button id="btnEnviarResena" class="btn btn-success">Enviar</button>
@@ -133,5 +133,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/ScriptsViews/HistorialCitasCliente.js"></script>
+    <script src="~/ScriptsViews/Cliente/HistorialCitasCliente.js"></script>
 }

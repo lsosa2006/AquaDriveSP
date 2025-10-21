@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const regexTelefono = /^[0-9]{10}$/;
         /*const regexDireccion = /^[a-zA-Z0-9\s.,#-]{5,}$/;*/
-        const regexDireccion = /^(?=.*\p{L})(?=.*\d)[\p{L}\d\s.,#-]{5,}$/u;
+        const regexDireccion = /^(?=.*\p{L})(?=.*\d)[\p{L}\d\s.#-]{5,},\s*\p{L}+$/u;
         // Validaciones
         if (!usuarioId || isNaN(usuarioId)) {
             Swal.fire("Error", "El documento debe ser un número válido.", "error");
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (tipoCuenta === "cliente" && (!direccion || !regexDireccion.test(direccion))) {
-            Swal.fire("Error", "Ingresa una dirección válida (mínimo 5 caracteres, letras, números y símbolos , . # -).", "error");
+            Swal.fire("Error", "Ingresa una dirección válida (mínimo 5 caracteres, debe incluir letras, números y terminar con ', Ciudad'). Ejemplo: Calle 10 #25-30, Medellín.", "error");
             return;
         }
 

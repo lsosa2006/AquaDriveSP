@@ -189,31 +189,31 @@
                 }
                 @if (rol == "Cliente")
                 {
-                   <li class="dropdown">
-                       <a href="#">Citas ▾</a>
-                       <ul class="submenu">
-                           @if (hasVehicle)
-                           {
-                               <li><a href="@Url.Action("AgendarCita", "Cliente")">Agendar cita</a></li>
-                               <li><a href="@Url.Action("CitasPendientes", "Cliente")">Citas pendientes</a></li>
-                               <li><a href="@Url.Action("HistorialCitas", "Cliente")">Historial de citas</a></li>
-                               <li><a href="@Url.Action("Resenas", "Cliente")">Reseñas realizadas</a></li>
-                           }
-                           else
-                           {
-                               <li class="text-center px-3 py-2">
-                                   <small class="text-white d-block mb-2">
-                                       Agrega un vehículo para usar este apartado
-                                   </small>
-                                   <a href="@Url.Action("GestionarVehiculos", "Cliente")"
-                                      class="btn btn-sm btn-light text-primary fw-bold px-2 py-1"
-                                      style="font-size: 0.8rem;">
-                                       Ir a gestionar vehículos
-                                   </a>
-                               </li>
-                           }
-                       </ul>
-                   </li>
+                    <li class="dropdown">
+                        <a href="#">Citas ▾</a>
+                        <ul class="submenu">
+                            @if (hasVehicle)
+                            {
+                                <li><a href="@Url.Action("AgendarCita", "Cliente")">Agendar cita</a></li>
+                                <li><a href="@Url.Action("CitasPendientes", "Cliente")">Citas pendientes</a></li>
+                                <li><a href="@Url.Action("HistorialCitas", "Cliente")">Historial de citas</a></li>
+                                <li><a href="@Url.Action("Resenas", "Cliente")">Reseñas realizadas</a></li>
+                            }
+                            else
+                            {
+                                <li class="text-center px-3 py-2">
+                                    <small class="text-white d-block mb-2">
+                                        Agrega un vehículo para usar este apartado
+                                    </small>
+                                    <a href="@Url.Action("GestionarVehiculos", "Cliente")"
+                                       class="btn btn-sm btn-light text-primary fw-bold px-2 py-1"
+                                       style="font-size: 0.8rem;">
+                                        Ir a gestionar vehículos
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
                     <li><a href="@Url.Action("GestionarVehiculos", "Cliente")">Gestionar vehiculos</a></li>
                     @*<li><a href="@Url.Action("InfoEmpresa", "Cliente")">Información general</a></li>*@
                 }
@@ -253,6 +253,32 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const spinnerModal = new bootstrap.Modal(document.getElementById('spinnerModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            // Selecciona todos los enlaces del menú
+            document.querySelectorAll('.menu a').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    // Solo mostrar spinner si el enlace lleva a otra página (no # o vacío)
+                    if (href && href !== '#' && !href.startsWith('javascript:')) {
+                        spinnerModal.show();
+                    }
+                });
+            });
+
+            // Oculta el spinner cuando la nueva página termina de cargar
+            window.addEventListener('load', function () {
+                const modalElement = document.getElementById('spinnerModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) modalInstance.hide();
+            });
+        });
+    </script>
 
     @RenderSection("Scripts", required: false)
 

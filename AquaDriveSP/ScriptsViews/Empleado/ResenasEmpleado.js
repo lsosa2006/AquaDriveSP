@@ -62,9 +62,19 @@
     // 🔹 Generar estrellas visuales
     function generarEstrellas(puntaje) {
         let html = "";
-        for (let i = 1; i <= 5; i++) {
-            html += i <= puntaje ? "⭐" :"⭐";
+        const fullStars = Math.floor(puntaje); // número entero de estrellas llenas
+        const emptyStars = 5 - fullStars;      // resto hasta completar 5
+
+        // Estrellas llenas
+        for (let i = 0; i < fullStars; i++) {
+            html += '<i class="bi bi-star-fill text-warning"></i>';
         }
+
+        // Estrellas vacías
+        for (let i = 0; i < emptyStars; i++) {
+            html += '<i class="bi bi-star text-warning"></i>';
+        }
+
         return html;
     }
 

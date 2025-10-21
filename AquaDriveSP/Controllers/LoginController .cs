@@ -62,8 +62,8 @@ namespace AquaDriveSP.Controllers
                         var cliente = new Cliente
                         {
                             usuarioid = usuario.usuarioid,
-                            latitud = (double)(coordenadas?.lat),
-                            longitud = (double)(coordenadas?.lng)
+                            latitud = (double)(coordenadas?.lat ?? 0.0),
+                            longitud = (double)(coordenadas?.lng ?? 0.0)
                         };
                         db.usuario.Add(usuario);
                         db.cliente.Add(cliente);
