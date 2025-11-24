@@ -166,6 +166,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\InicioController.cs" />
     <Compile Include="Utilities\Autentication\AuthorizeRoleAttribute.cs" />
     <Compile Include="Controllers\ClienteController.cs" />
     <Compile Include="Controllers\EmpleadoController .cs" />
@@ -189,6 +190,8 @@
     <Compile Include="Models\Horario.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="images\equipo.jpg" />
+    <Content Include="images\Lavando.jpg" />
     <Content Include="ScriptsViews\Cliente\GestionarVehiculos.js" />
     <Content Include="ScriptsViews\Cliente\ResenasCliente.js" />
     <Content Include="ScriptsViews\Empleado\ResenasEmpleado.js" />
@@ -289,6 +292,7 @@
     <Content Include="Views\Cliente\GestionarVehiculos.cshtml" />
     <Content Include="Views\Cliente\HistorialCitas.cshtml" />
     <Content Include="Views\Cliente\Resenas.cshtml" />
+    <Content Include="Views\Inicio\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

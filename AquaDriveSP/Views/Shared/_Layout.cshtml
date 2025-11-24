@@ -14,27 +14,11 @@
     <title>@ViewBag.Title - AquaDriveSP</title>
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css" rel="stylesheet">
 
     <style>
-        .main-content {
-            display: flex;
-            justify-content: center; /* centra horizontalmente */
-            align-items: flex-start; /* puedes usar center si quieres también vertical */
-            margin: 80px auto; /* margen superior e inferior */
-            width: 100%;
-            min-height: calc(100vh - 160px); /* asegura altura (restando navbar + footer aprox.) */
-        }
-
-        .container {
-            margin: 0 auto; /* centra el contenido */
-            max-width: 1600px; /* limita el ancho para que no se estire demasiado */
-            width: 100%;
-        }
-
         body {
             display: flex;
             flex-direction: column;
@@ -48,12 +32,15 @@
             background-color: #13007c;
             color: white;
             padding: 10px 20px;
+            position: relative;
+            z-index: 1000;
         }
 
-            .navbar-custom img {
-                height: 50px;
-            }
+        .navbar-custom img {
+            height: 50px;
+        }
 
+        /* ----------- MENU ----------- */
         .menu {
             list-style: none;
             margin: 0;
@@ -61,19 +48,20 @@
             display: flex;
             gap: 15px;
             align-items: center;
+            transition: all 0.3s ease-in-out;
         }
 
-            .menu li {
-                position: relative;
-            }
+        .menu li {
+            position: relative;
+        }
 
-            .menu a {
-                color: white;
-                text-decoration: none;
-                font-weight: bold;
-                padding: 8px;
-                display: inline-block;
-            }
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px;
+            display: inline-block;
+        }
 
         .submenu {
             display: none;
@@ -91,8 +79,77 @@
             display: block;
         }
 
-        main.main-content {
-            flex: 1; /* ocupa todo el espacio disponible */
+        /* ----------- RESPONSIVE ----------- */
+        .hamburger {
+            display: none;
+            font-size: 1.8rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        @@media (max-width: 992px) {
+            nav {
+                position: absolute;
+                top: 70px;
+                right: 0;
+                background-color: #13007c;
+                width: 100%;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease-in-out;
+            }
+
+            nav.active {
+                max-height: 600px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .menu {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 20px;
+                gap: 10px;
+            }
+
+            .dropdown:hover .submenu {
+                display: none;
+            }
+
+            .submenu {
+                position: static;
+                background: rgba(0, 0, 0, 0.2);
+                padding-left: 15px;
+                border-radius: 0;
+            }
+
+            .dropdown.open .submenu {
+                display: block;
+                animation: fadeIn 0.3s ease-in;
+            }
+
+            .hamburger {
+                display: block;
+            }
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 80px auto;
+            width: 100%;
+            min-height: calc(100vh - 160px);
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 1600px;
+            width: 100%;
         }
 
         footer {
@@ -104,7 +161,7 @@
             font-size: 0.9rem;
         }
 
-        /* Switch básico */
+        /* ----------- SWITCH ----------- */
         .switch {
             position: relative;
             display: inline-block;
@@ -112,9 +169,9 @@
             height: 24px;
         }
 
-            .switch input {
-                display: none;
-            }
+        .switch input {
+            display: none;
+        }
 
         .slider {
             position: absolute;
@@ -128,25 +185,25 @@
             border-radius: 24px;
         }
 
-            .slider:before {
-                position: absolute;
-                content: "";
-                height: 18px;
-                width: 18px;
-                left: 3px;
-                bottom: 3px;
-                background: white;
-                transition: .4s;
-                border-radius: 50%;
-            }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
 
         .switch input:checked + .slider {
             background: #00cfff;
         }
 
-            .switch input:checked + .slider:before {
-                transform: translateX(26px);
-            }
+        .switch input:checked + .slider:before {
+            transform: translateX(26px);
+        }
     </style>
 
     @RenderSection("Styles", required: false)
@@ -156,6 +213,8 @@
         <div class="d-flex align-items-center gap-3">
             <img src="@Url.Content("~/images/AquaDriveSP_logo.png")" alt="AquaDriveSP" />
         </div>
+
+        <i class="bi bi-list hamburger"></i>
 
         <nav>
             <ul class="menu m-0 p-0">
@@ -215,7 +274,6 @@
                         </ul>
                     </li>
                     <li><a href="@Url.Action("GestionarVehiculos", "Cliente")">Gestionar vehiculos</a></li>
-                    @*<li><a href="@Url.Action("InfoEmpresa", "Cliente")">Información general</a></li>*@
                 }
                 <li class="dropdown">
                     <a href="#">Configuración ▾</a>
@@ -224,7 +282,6 @@
                         <li><a href="@Url.Action("CambiarContrasena", "Cuenta")">Cambiar contraseña</a></li>
                     </ul>
                 </li>
-
                 <li><a href="@Url.Action("CerrarSesion", "Cuenta")">Cerrar Sesión</a></li>
             </ul>
         </nav>
@@ -233,6 +290,7 @@
     <main class="main-content">
         <div class="container">
             @RenderBody()
+
             <!-- Modal con Spinner -->
             <div class="modal fade" id="spinnerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog modal-dialog-centered">
@@ -248,42 +306,55 @@
         </div>
     </main>
 
+    <footer>
+        <span>Fecha: @fechaActual</span> | <span>Versión: @versionApp</span>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", () => {
             const spinnerModal = new bootstrap.Modal(document.getElementById('spinnerModal'), {
-                backdrop: 'static',
-                keyboard: false
+                backdrop: 'static', keyboard: false
             });
 
-            // Selecciona todos los enlaces del menú
             document.querySelectorAll('.menu a').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    // Solo mostrar spinner si el enlace lleva a otra página (no # o vacío)
-                    if (href && href !== '#' && !href.startsWith('javascript:')) {
-                        spinnerModal.show();
-                    }
+                link.addEventListener('click', e => {
+                    const href = link.getAttribute('href');
+                    if (href && href !== '#' && !href.startsWith('javascript:')) spinnerModal.show();
                 });
             });
 
-            // Oculta el spinner cuando la nueva página termina de cargar
-            window.addEventListener('load', function () {
-                const modalElement = document.getElementById('spinnerModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) modalInstance.hide();
+            window.addEventListener('load', () => {
+                const modal = document.getElementById('spinnerModal');
+                const instance = bootstrap.Modal.getInstance(modal);
+                if (instance) instance.hide();
+            });
+
+            // ----- MENÚ HAMBURGUESA -----
+            const hamburger = document.querySelector('.hamburger');
+            const nav = document.querySelector('nav');
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            hamburger.addEventListener('click', () => {
+                nav.classList.toggle('active');
+                hamburger.classList.toggle('bi-x');
+            });
+
+            dropdowns.forEach(drop => {
+                drop.addEventListener('click', e => {
+                    e.stopPropagation();
+                    dropdowns.forEach(d => {
+                        if (d !== drop) d.classList.remove('open');
+                    });
+                    drop.classList.toggle('open');
+                });
             });
         });
     </script>
 
     @RenderSection("Scripts", required: false)
-
-    <footer>
-        <span>Fecha: @fechaActual</span> | <span>Versión: @versionApp</span>
-    </footer>
 </body>
 </html>

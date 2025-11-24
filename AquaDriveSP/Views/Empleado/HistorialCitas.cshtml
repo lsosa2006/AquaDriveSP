@@ -107,6 +107,29 @@
             border-radius: 10px;
             border: 1px solid #00cfff;
         }
+
+         @@media (max-width: 992px) {
+    .empleado-container .search {
+        width: 60% !important;
+    }
+}
+
+@@media (max-width: 768px) {
+    .empleado-container .search {
+        width: 80% !important;
+    }
+}
+
+@@media (max-width: 576px) {
+    .empleado-container .search {
+        width: 100% !important;
+    }
+
+    .empleado-container .mb-3.d-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
     </style>
 }
 

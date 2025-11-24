@@ -17,13 +17,14 @@
     <style>
         .container {
             display: flex;
+            flex-wrap: wrap; /* permite que las cards se ajusten automáticamente */
             gap: 30px;
             margin: 20px auto;
             max-width: 1200px;
+            justify-content: center;
         }
 
-        .card-left {
-            flex: 0 0 380px;
+        .card-left, .card-right {
             background: #e6f7ff;
             padding: 20px;
             border-radius: 15px;
@@ -34,15 +35,13 @@
             overflow-wrap: break-word;
         }
 
+        /* Mantiene proporciones originales en pantallas grandes */
+        .card-left {
+            flex: 0 0 380px;
+        }
+
         .card-right {
             flex: 1;
-            background: #e6f7ff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
-            font-size: 1.1rem;
-            display: flex;
-            flex-direction: column;
         }
 
         .card h3 {
@@ -75,6 +74,17 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+        }
+
         .stars {
             color: gold;
         }
@@ -82,17 +92,60 @@
         a.btn {
             align-self: flex-start;
         }
+
         .texto-opcional {
             display: block;
-            color: #b30000; /* rojo suave */
-            font-size: 11px; /* pequeño */
-            margin-bottom: 6px; /* mantiene espacio con el siguiente campo */
+            color: #b30000;
+            font-size: 11px;
+            margin-bottom: 6px;
             text-align: left;
             width: 70%;
             padding: 8px;
         }
+
+        /* ✅ Responsividad */
+        @@media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .card-left, .card-right {
+                flex: none;
+                width: 90%;
+                max-width: 600px;
+            }
+
+            .chart-box {
+                min-width: 100%;
+            }
+
+            #map {
+                height: 250px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .card-left, .card-right {
+                width: 95%;
+                padding: 15px;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+            }
+
+            ul {
+                padding-left: 15px;
+            }
+
+            #map {
+                height: 220px;
+            }
+        }
     </style>
 }
+
 
 <div class="container">
     @if (Model.Rol == "Admin" && Model.AdminData != null)
@@ -214,7 +267,7 @@
                         <li>
                             <strong>@c.Sede</strong> - @c.Servicio
                             (<span>@c.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm") -  @c.FechaHoraFin.ToString("HH:mm")</span>)
-</li>
+                        </li>
                     }
                 </ul>
             }
@@ -223,16 +276,17 @@
                 <p class="text-center text-muted"><i class="bi bi-exclamation-circle"></i> No tienes citas finalizadas aún.</p>
             }
 
-        <div class="text-start">
-            <a href="@(hasVehicle ? Url.Action("AgendarCita", "Cliente") : "#")"
-               class="btn btn-success mt-2"
-               style="max-width: 250px; display:block; margin:0 auto;">Reservar nueva cita</a>
+            <div class="text-start">
+                <a href="@(hasVehicle ? Url.Action("AgendarCita", "Cliente") : "#")"
+                   class="btn btn-success mt-2"
+                   style="max-width: 250px; display:block; margin:0 auto;">Reservar nueva cita</a>
 
-            <a href="@(hasVehicle ? Url.Action("HistorialCitas", "Cliente") : "#")"
-               class="btn btn-info mt-2"
-               style="max-width: 250px; display:block; margin:0 auto;">Ver historial completo</a>
-        </div>
-            @if (!hasVehicle){ <small class="texto-opcional">Debes registrar un vehículo para utilizar estos apartados</small> }
+                <a href="@(hasVehicle ? Url.Action("HistorialCitas", "Cliente") : "#")"
+                   class="btn btn-info mt-2"
+                   style="max-width: 250px; display:block; margin:0 auto;">Ver historial completo</a>
+            </div>
+            @if (!hasVehicle)
+            {<small class="texto-opcional">Debes registrar un vehículo para utilizar estos apartados</small>}
         </div>
 
         <div class="card card-right flex-fill text-center">

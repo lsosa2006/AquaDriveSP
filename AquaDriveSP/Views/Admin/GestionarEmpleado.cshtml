@@ -91,6 +91,22 @@
             border-radius: 10px;
             border: 1px solid #00cfff;
         }
+
+        @@media (max-width: 442px) {
+    .d-flex.justify-content-between.align-items-center.mb-3 {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .d-flex.justify-content-between.align-items-center.mb-3 > div {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    #btnHorarioTodos {
+        width: 100%;
+    }
+}
     </style>
 }
 
