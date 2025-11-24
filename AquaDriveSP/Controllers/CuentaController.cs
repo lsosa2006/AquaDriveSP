@@ -20,10 +20,7 @@ namespace AquaDriveSP.Controllers
             try
             {
                 long usuarioId = (long)Session["UsuarioId"];
-                var usuario = db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId);
-
-                if (usuario == null)
-                    return HttpNotFound();
+                Usuario usuario = db.usuario.FirstOrDefault(u => u.usuarioid == usuarioId);
 
                 return View(usuario);
             }

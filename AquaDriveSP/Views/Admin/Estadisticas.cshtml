@@ -16,9 +16,9 @@
             text-align: center;
         }
 
-            .admin-container h2 {
-                margin-bottom: 25px;
-            }
+        .admin-container h2 {
+            margin-bottom: 25px;
+        }
 
         .filter-row {
             display: flex;
@@ -29,12 +29,13 @@
             flex-wrap: wrap;
         }
 
-            .filter-row input[type="date"] {
-                padding: 6px 12px;
-                border-radius: 8px;
-                border: 1px solid #00cfff;
-                font-size: 0.95rem;
-            }
+        .filter-row input[type="date"] {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #00cfff;
+            font-size: 0.95rem;
+            min-width: 150px;
+        }
 
         .btn-blue {
             background-color: #00cfff;
@@ -46,9 +47,9 @@
             transition: 0.3s;
         }
 
-            .btn-blue:hover {
-                background-color: #0099cc;
-            }
+        .btn-blue:hover {
+            background-color: #0099cc;
+        }
 
         .charts {
             display: flex;
@@ -65,6 +66,16 @@
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 🔹 Hace que los gráficos se ajusten sin desbordar */
+        .chart-box canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100%;
         }
 
         .table-title {
@@ -93,6 +104,61 @@
 
         thead.table-light th {
             background-color: #f8f9fa;
+        }
+
+        /* =====================
+           🔹 Responsividad 🔹
+        ===================== */
+
+        @@media (max-width: 992px) {
+            .charts {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .chart-box {
+                min-width: 90%;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row input[type="date"],
+            .btn-blue {
+                width: 100%;
+            }
+
+            .chart-box {
+                min-width: 100%;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .admin-container {
+                padding: 15px;
+            }
+
+            th, td {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+
+            .filter-row input[type="date"] {
+                font-size: 0.9rem;
+            }
+
+            .btn-blue {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+
+            .chart-box {
+                padding: 10px;
+            }
         }
     </style>
 }

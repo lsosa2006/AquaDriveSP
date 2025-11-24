@@ -57,6 +57,105 @@
         #sinDatos {
             font-weight: 500;
         }
+
+        /* 🔹 Centrado de las cards del resumen */
+        #resumen {
+            justify-content: center; /* Centra horizontalmente las columnas */
+        }
+
+            #resumen .col-md-6 {
+                display: flex;
+                justify-content: center; /* Centra la card dentro de la columna */
+            }
+
+            #resumen .card {
+                width: 100%;
+                max-width: 400px; /* Ajusta el ancho máximo para que se vean centradas */
+            }
+
+        /* 🔹 Responsividad */
+        @@media (max-width: 992px) {
+            .empleado-container {
+                padding: 20px;
+            }
+
+            .filtros-container .col-md-3,
+            .filtros-container .col-md-2 {
+                flex: 0 0 45%;
+                max-width: 45%;
+                margin-bottom: 15px;
+            }
+
+            #tablaContainer {
+                font-size: 0.95rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .empleado-container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .filtros-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+                .filtros-container .col-md-3,
+                .filtros-container .col-md-2 {
+                    width: 100%;
+                    max-width: 100%;
+                }
+
+                .filtros-container button {
+                    width: 100%;
+                }
+
+            #resumen {
+                flex-direction: column;
+                align-items: center;
+            }
+
+                #resumen .col-md-6 {
+                    width: 100%;
+                    max-width: 500px;
+                }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .empleado-container {
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .filtros-container label {
+                font-size: 0.9rem;
+            }
+
+            #resumen h5 {
+                font-size: 1rem;
+            }
+
+            #resumen h2 {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            .card {
+                padding: 10px;
+            }
+        }
     </style>
 }
 
@@ -91,13 +190,13 @@
 
     <!-- 🔹 Resumen -->
     <div id="resumen" class="row text-center mb-4" style="display:none;">
-        <div class="col-md-6">
+        <div class="col-md-6 mb-3">
             <div class="card shadow-sm p-3">
                 <h5>⭐ Promedio</h5>
                 <h2 id="lblPromedio">0</h2>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 mb-3">
             <div class="card shadow-sm p-3">
                 <h5>📊 Total de Reseñas</h5>
                 <h2 id="lblTotal">0</h2>
